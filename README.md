@@ -55,7 +55,7 @@ This project is built for learning full stack development step by step while kee
    npm install
    npm run dev
 
-Frontend URL : http://localhost:5713
+Frontend URL : http://localhost:5173
 Go to this URL to find your website..!
 
 **Roadmap / Future Enhancements**
@@ -64,5 +64,6 @@ Go to this URL to find your website..!
 3. Favourite recipe bookmarking
 4. Image Uploads
 5. User Dashboard
+
 
 
