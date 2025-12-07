@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth.routes import router as auth_router
 from app.users.routes import router as users_router
+from app.recipes.routes import router as recipes_router
 
 app = FastAPI(title="Recipe Finder - Backend API")
 
@@ -19,7 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
+
 app.include_router(users_router, prefix="/api/users", tags=["users"])
+
+app.include_router(recipes_router, prefix="/api/recipes", tags=["recipes"])
 
 @app.get("/")
 def read_root():
