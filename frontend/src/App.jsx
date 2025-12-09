@@ -1,20 +1,28 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-// import Login from './pages/Login.jsx'
+import Layout from './components/Layout'
+
 import Home from './pages/Home.jsx'
-// import SignUp from './pages/SignUp.jsx'
 import Auth from './pages/Auth.jsx'
 import Search from './pages/Search.jsx'
+
+const Addrecipe = () => <div>Add Recipe Page (to be implemented)</div>;
+const Community = () => <div>Community Page (to be implemented)</div>;
+const Account = () => <div>Account Page (to be implemented)</div>;
 
 function App() {
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/signup" element={<SignUp />} /> */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/add-recipe" element={<Addrecipe />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/account" element={<Account />} />
+        </Route>
+
         <Route path="/auth" element={<Auth />} />
-        <Route path="/search" element={<Search />} />
       </Routes>
     </Router>
   )
