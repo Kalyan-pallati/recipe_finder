@@ -25,6 +25,7 @@ app.include_router(users_router, prefix="/api/users", tags=["users"])
 
 app.include_router(recipes_router, prefix="/api/recipes", tags=["recipes"])
 
+
 @app.get("/")
 def read_root():
     return {"status": "ok", "msg" : "Recipe Finder Backend API is running."}

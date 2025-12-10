@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -7,6 +8,10 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const returnUrl = params.get("returnUrl") || "/";
 
   const navigate = useNavigate();
 
@@ -22,7 +27,7 @@ export default function Auth() {
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("token", data.access_token);
-      navigate("/");
+      navigate(returnUrl);
     } else {
       alert("Login failed: " + data.detail);
     }
