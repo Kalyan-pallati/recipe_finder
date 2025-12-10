@@ -6,7 +6,7 @@ export default function NavBar() {
 
     function handleLogout() {
         localStorage.removeItem('token');
-        navigate('/auth');
+        navigate('/');
     }
     return (
         <nav className="flex items-center justify-between px-12 py-6 border-b bg-white shadow-sm">

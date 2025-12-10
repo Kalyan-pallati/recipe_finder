@@ -223,7 +223,9 @@ export default function Search() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {recipes.map((r) => (
-                  <article key={r.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition cursor-pointer">
+                  <article key={r.id} 
+                  onClick={() => navigate(`/recipe/${r.id}`)}
+                  className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition cursor-pointer">
                     <img src={r.image} alt={r.title} className="w-full h-40 object-cover" />
                     <div className="p-3">
                       <h3 className="font-semibold text-lg mb-1">{r.title}</h3>

@@ -18,8 +18,6 @@ async def search_recipes(
     q: str = Query(..., min_length=1),
     page: int = 1,
     per_page: int = 12,
-
-    # FILTERS
     cuisine: Optional[str] = None,
     diet: Optional[str] = None,
     intolerances: Optional[str] = None,
@@ -134,3 +132,45 @@ async def search_recipes(
         "total_results": data.get("totalResults", 0),
         "results": results
     }
+@router.get("/{recipe_id}")
+async def get_recipe_details(recipe_id: int):
+    if not API_KEY:
+        raise HTTPException(status_code=500, detail="Missing Spoonacular API Key")
+    
+    url = f"{BASE_URL}/recipes/{recipe_id}/information"
+
+    params = {
+        "apiKey": API_KEY,
+        "includeNutrition": True
+    }
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(url, params=params)
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail="Recipe not found")
+    
+    data = resp.json()
+
+    recipe = {
+        "id": data.get("id"),
+        "title": data.get("title"),
+        "image": data.get("image"),
+        "summary": data.get("summary"),
+        "sourceUrl": data.get("sourceUrl"),
+        "readyInMinutes": data.get("readyInMinutes"),
+        "servings": data.get("servings"),
+        "ingredients":[
+            {
+                "id": ing.get("id"),
+                "name": ing.get("name"),
+                "amount": ing.get("amount"),
+                "unit": ing.get("unit")
+            }
+            for ing in data.get("extendedIngredients",[])
+        ],
+        "instructions": data.get("instructions"),
+        "nutrition": data.get("nutrition", {}).get("nutrients",[])
+    }
+    
+    return recipe
