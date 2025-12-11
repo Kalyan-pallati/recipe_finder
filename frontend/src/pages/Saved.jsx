@@ -43,7 +43,6 @@ export default function Saved() {
     );
 
     if (res.ok) {
-      // remove from UI instantly
       setRecipes((prev) => prev.filter((r) => r.recipe_id !== recipeId));
     }
   }
@@ -71,7 +70,6 @@ export default function Saved() {
     <div className="px-10 py-10">
       <h2 className="text-3xl font-bold mb-8">Saved Recipes</h2>
 
-      {/* Cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {recipes.map((rec) => (
           <div
@@ -112,7 +110,6 @@ export default function Saved() {
         ))}
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-center gap-5 mt-10">
         <button
           disabled={page === 1}

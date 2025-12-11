@@ -119,12 +119,12 @@ export default function Recipe() {
       </p>
     );
 
-  // extract calories
+  
   const calories =
     recipe.nutrition?.find((n) => n.name.toLowerCase() === "calories")
       ?.amount || "N/A";
 
-  // parse steps
+  
   const steps =
     recipe.instructions
       ?.replace(/<\/?[^>]+(>|$)/g, "")
@@ -135,10 +135,8 @@ export default function Recipe() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10 animate-fadeIn">
 
-      {/* HERO SECTION */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 bg-[#FEF9F2] rounded-3xl shadow p-10">
 
-        {/* TEXT */}
         <div>
           <h1 className="text-5xl font-bold text-[#8A2C1F] leading-tight mb-6">
             {recipe.title}
@@ -148,7 +146,6 @@ export default function Recipe() {
             Enjoy this delicious recipe by recreating it at home.
           </p>
 
-          {/* Save Button */}
           {isSaved ? (
             <button onClick={handleUnsaveRecipe}
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
@@ -161,7 +158,6 @@ export default function Recipe() {
             </button>
           )}
 
-          {/* ICON ROW */}
           <div className="flex items-center gap-8 mt-8">
 
             <div className="flex flex-col items-center">
@@ -185,7 +181,6 @@ export default function Recipe() {
             </div>
           </div>
 
-          {/* SOURCE */}
           <a
             href={recipe.sourceUrl}
             target="_blank"
@@ -196,7 +191,6 @@ export default function Recipe() {
           </a>
         </div>
 
-        {/* IMAGE */}
         <div className="rounded-3xl overflow-hidden shadow-lg">
           <img
             src={recipe.image}
@@ -206,7 +200,6 @@ export default function Recipe() {
         </div>
       </div>
 
-      {/* INGREDIENTS + DIRECTIONS */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 mt-16 relative">
         <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[2px] bg-yellow-400"></div>
 
@@ -235,7 +228,6 @@ export default function Recipe() {
         </div>
       </div>
 
-      {/* NUTRITION */}
       <div className="max-w-5xl mx-auto mt-16 bg-white rounded-3xl shadow p-10">
         <h2 className="text-3xl font-bold text-gray-800 mb-8">Nutrition Facts</h2>
 

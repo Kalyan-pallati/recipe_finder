@@ -7,12 +7,10 @@ export default function Search() {
   const navigate = useNavigate();
   const initialQuery = params.get("q") || "";
 
-  // FORM STATE
   const [query, setQuery] = useState(initialQuery);
   const [page, setPage] = useState(1);
   const perPage = 12;
 
-  // FILTERS
   const [cuisine, setCuisine] = useState("");
   const [diet, setDiet] = useState("");
   const [intolerances, setIntolerances] = useState([]);
@@ -24,16 +22,13 @@ export default function Search() {
   const [sort, setSort] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // RESULTS
   const [recipes, setRecipes] = useState([]);
   const [totalResults, setTotalResults] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // SAVED RECIPE IDs
   const [savedIds, setSavedIds] = useState([]);
 
-  // LOAD SAVED RECIPES ONCE
   useEffect(() => {
     async function loadSaved() {
       const token = localStorage.getItem("token");
@@ -52,7 +47,6 @@ export default function Search() {
     loadSaved();
   }, []);
 
-  // BUILD FILTER OBJECT
   function buildFilters() {
     return {
       cuisine: cuisine || undefined,
@@ -68,7 +62,6 @@ export default function Search() {
     };
   }
 
-  // MAIN SEARCH
   async function doSearch(p = 1) {
     setLoading(true);
     setError("");
@@ -81,7 +74,6 @@ export default function Search() {
       setTotalResults(data.total_results ?? data.totalResults ?? 0);
       setPage(p);
 
-      // update URL
       const qp = new URLSearchParams();
       if (query) qp.set("q", query);
       qp.set("page", String(p));
@@ -93,7 +85,6 @@ export default function Search() {
     }
   }
 
-  // RUN SEARCH IF QUERY EXISTS
   useEffect(() => {
     if (initialQuery) doSearch(1);
     else {
@@ -102,7 +93,6 @@ export default function Search() {
     }
   }, [initialQuery]);
 
-  // PAGINATION
   const totalPages = Math.max(1, Math.ceil((totalResults || recipes.length) / perPage));
   const canPrev = page > 1;
   const canNext = page < totalPages;
@@ -114,14 +104,12 @@ export default function Search() {
     if (canNext) doSearch(page + 1);
   }
 
-  // TOGGLE INTOLERANCES CHECKBOXES
   function toggleIntolerance(val) {
     setIntolerances((prev) =>
       prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]
     );
   }
 
-  // SAVE RECIPE
   async function handleSave(e, recipe) {
     e.stopPropagation();
 
@@ -149,7 +137,6 @@ export default function Search() {
     if (res.ok) setSavedIds((prev) => [...prev, recipe.id]);
   }
 
-  // UNSAVE
   async function handleUnsave(e, recipeId) {
     e.stopPropagation();
 
@@ -171,11 +158,9 @@ export default function Search() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8 flex gap-8">
 
-        {/* SIDEBAR */}
         <aside className="w-72 md:w-80 lg:w-96 shrink-0 bg-white p-6 rounded-lg shadow-sm">
           <h3 className="text-xl font-semibold mb-4">Search & Filters</h3>
 
-          {/* Search field */}
           <label className="block text-sm font-medium mb-1">Search</label>
           <div className="flex gap-2 mb-4">
             <input
@@ -192,7 +177,6 @@ export default function Search() {
             </button>
           </div>
 
-          {/* Basic Filters */}
           <label className="block text-sm font-medium mb-1">Cuisine</label>
           <select className="w-full mb-3 px-2 py-2 border rounded"
             value={cuisine}
@@ -215,7 +199,6 @@ export default function Search() {
             <option>ketogenic</option>
           </select>
 
-          {/* Intolerances */}
           <label className="block text-sm font-medium mb-1">Intolerances</label>
           <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
             {["dairy","egg","gluten","peanut","seafood","soy","wheat"].map((i) => (
@@ -230,7 +213,6 @@ export default function Search() {
             ))}
           </div>
 
-          {/* Time + Calories */}
           <label className="block text-sm font-medium mb-1">Max Ready Time</label>
           <input type="number" className="w-full mb-3 px-2 py-2 border rounded"
             value={maxReadyTime}
@@ -246,7 +228,6 @@ export default function Search() {
             value={maxCalories}
             onChange={(e) => setMaxCalories(e.target.value)} />
 
-          {/* Ingredients */}
           <label className="block text-sm font-medium mb-1">
             Include Ingredients
           </label>
@@ -261,7 +242,6 @@ export default function Search() {
             value={excludeIngredients}
             onChange={(e) => setExcludeIngredients(e.target.value)} />
 
-          {/* Sorting */}
           <label className="block text-sm font-medium mb-1">Sort by</label>
           <select className="w-full mb-3 px-2 py-2 border rounded"
             value={sort}
@@ -280,7 +260,6 @@ export default function Search() {
             <option value="desc">Descending</option>
           </select>
 
-          {/* Buttons */}
           <div className="mt-4 flex gap-2">
             <button onClick={() => doSearch(1)} className="flex-1 bg-orange-600 text-white py-2 rounded">
               Apply
@@ -305,7 +284,6 @@ export default function Search() {
           </div>
         </aside>
 
-        {/* RESULTS */}
         <section className="flex-1">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -346,7 +324,6 @@ export default function Search() {
                       </div>
 
                       <div className="mt-3 flex gap-2">
-                        {/* VIEW */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -357,7 +334,6 @@ export default function Search() {
                           View
                         </button>
 
-                        {/* SAVE / UNSAVE */}
                         {savedIds.includes(r.id) ? (
                           <button
                             onClick={(e) => handleUnsave(e, r.id)}
@@ -379,7 +355,6 @@ export default function Search() {
                 ))}
               </div>
 
-              {/* PAGINATION */}
               <div className="mt-6 flex items-center justify-center gap-4">
                 <button
                   disabled={!canPrev}

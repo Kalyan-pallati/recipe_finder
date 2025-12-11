@@ -51,6 +51,31 @@ export default function MyRecipes() {
     }
   }
 
+  async function handleDeleteRecipe(e, recipe_id) {
+    e.preventDefault();
+    console.log(recipe_id);
+    try {
+    const token = localStorage.getItem("token");
+    if(!token) {
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/auth?returnUrl=${returnUrl}`);
+      return;
+    }
+
+    const res = await fetch(`http://localhost:8000/api/my-recipes/${recipe_id}`,{
+      method : "DELETE",
+      headers: {
+        Authorization : `Bearer ${token}`,
+      }
+    });
+    // if (res.ok) setRecipes(prev => prev.filter(r => r._id !== recipe_id));
+    if(res.ok) fetchMyRecipes();
+  } catch(err) {
+    console.error(err)
+  } 
+
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="flex justify-between items-center mb-6">
@@ -74,7 +99,7 @@ export default function MyRecipes() {
             <article
               key={r.id}
               className="bg-white shadow rounded-lg p-4 hover:shadow-lg transition cursor-pointer"
-              onClick={() => navigate(`/my-recipes/${r.id}`)} // optional detail page
+              // onClick={() => navigate(`/my-recipes/${r.id}`)} 
             >
               <img
                 src={r.image || "/no-image.png"}
@@ -90,12 +115,19 @@ export default function MyRecipes() {
                 </div>
             </div>
 
+            <div className="mt-3 flex gap-2">
             <button onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/my-recipes/${r.id}`);}}
                 className="text-sm bg-orange-500 text-white px-3 py-1 rounded">
                 View
             </button>
+
+            <button onClick={(e) => handleDeleteRecipe(e, r.id)}
+            className="text-sm bg-red-500 text-white px-3 py-1 rounded">
+            Delete</button>
+
+            </div>
 
               <h2 className="mt-3 text-lg font-semibold">{r.title}</h2>
 
