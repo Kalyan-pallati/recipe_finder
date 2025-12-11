@@ -7,7 +7,6 @@ function Home() {
   return (
     <div className="min-h-screen bg-gray-50"> 
 
-      {/* HERO SECTION */}
       <section className="text-center py-24 px-6 bg-[url('/bg-pattern.png')] bg-cover bg-center">
         <h1 className="text-4xl font-semibold text-orange-600 mb-6">
           Plan your way to healthier eating

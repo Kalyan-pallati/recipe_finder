@@ -6,8 +6,10 @@ import Auth from './pages/Auth.jsx'
 import Search from './pages/Search.jsx'
 import Recipe from './pages/Recipe.jsx'
 import Saved from './pages/Saved.jsx'
+import MyRecipes from './pages/MyRecipes.jsx'
+import RequireAuth from './components/RequireAuth.jsx'
+import MyRecipePage from './pages/MyRecipePage.jsx'
 
-const Addrecipe = () => <div>Add Recipe Page (to be implemented)</div>;
 const Community = () => <div>Community Page (to be implemented)</div>;
 const Account = () => <div>Account Page (to be implemented)</div>;
 
@@ -19,10 +21,11 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/add-recipe" element={<Addrecipe />} />
+          <Route path="/my-recipe" element={<RequireAuth><MyRecipes /></RequireAuth>} />
+          <Route path="/my-recipes/:id" element={<MyRecipePage />}></Route>
           <Route path="/community" element={<Community />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/saved" element={<Saved />} />
+          <Route path="/saved" element={ <RequireAuth><Saved /></RequireAuth>} />
           <Route path="/recipe/:id" element={<Recipe />} />
         </Route>
 

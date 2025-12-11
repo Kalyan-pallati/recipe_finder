@@ -15,7 +15,7 @@ export default function NavBar() {
         <div className="flex items-center gap-8 text-gray-700 font-medium">
             <Link to="/search" className="hover:text-orange-600 transition">Search Recipes</Link>
             <Link to="/saved" className="hover:text-orange-600 transition">Saved Recipes</Link>
-            <Link to="/add-recipe" className="hover:text-orange-600 transition">Add Recipe</Link>
+            <Link to="/my-recipe" className="hover:text-orange-600 transition">My Recipes</Link>
             <Link to="/community" className="hover:text-orange-600 transition">Community</Link>
             {token ? (
                 <>
