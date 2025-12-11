@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { searchRecipes } from "../api/recipeApi";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function Search() {
   const [params] = useSearchParams();
@@ -34,7 +35,7 @@ export default function Search() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch("http://localhost:8000/api/recipes/saved", {
+      const res = await fetchWithAuth("http://localhost:8000/api/recipes/saved", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -112,14 +113,9 @@ export default function Search() {
 
   async function handleSave(e, recipe) {
     e.stopPropagation();
-
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate(`/auth?returnUrl=/recipe/${recipe.id}`);
-      return;
-    }
 
-    const res = await fetch("http://localhost:8000/api/recipes/save", {
+    const res = await fetchWithAuth("http://localhost:8000/api/recipes/save", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -139,14 +135,9 @@ export default function Search() {
 
   async function handleUnsave(e, recipeId) {
     e.stopPropagation();
-
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate(`/auth?returnUrl=/recipe/${recipeId}`);
-      return;
-    }
 
-    const res = await fetch(`http://localhost:8000/api/recipes/unsave/${recipeId}`, {
+    const res = await fetchWithAuth(`http://localhost:8000/api/recipes/unsave/${recipeId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });

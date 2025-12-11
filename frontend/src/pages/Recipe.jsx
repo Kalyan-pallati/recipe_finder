@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { FaUtensils, FaClock, FaFire } from "react-icons/fa";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function Recipe() {
-  const { id } = useParams();
-  const navigate = useNavigate();  // FIXED
+  const { id } = useParams(); 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,14 +13,8 @@ export default function Recipe() {
   async function handleSaveRecipe() {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      const returnUrl = encodeURIComponent(window.location.pathname);
-      navigate(`/auth?returnUrl=${returnUrl}`);  
-      return;
-    }
-
     try {
-      const res = await fetch("http://localhost:8000/api/recipes/save",
+      const res = await fetchWithAuth("http://localhost:8000/api/recipes/save",
         {
           method: "POST",
           headers: {
@@ -52,7 +46,7 @@ export default function Recipe() {
   async function handleUnsaveRecipe() {
     const token = localStorage.getItem("token");
     
-    const res = await fetch(`http://localhost:8000/api/recipes/unsave/${recipe.id}`, {
+    const res = await fetchWithAuth(`http://localhost:8000/api/recipes/unsave/${recipe.id}`, {
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -83,10 +77,9 @@ export default function Recipe() {
 
   async function checkSaved() {
     const token = localStorage.getItem("token");
-    if (!token) return; // user not logged in → skip
 
     try {
-      const res = await fetch(
+      const res = await fetchWithAuth(
         `http://localhost:8000/api/recipes/is-saved/${id}`,
         {
           headers: {

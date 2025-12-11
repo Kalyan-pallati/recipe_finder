@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddRecipeModal from "../components/AddRecipeModal";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function MyRecipes() {
   const [recipes, setRecipes] = useState([]);
@@ -12,13 +13,7 @@ export default function MyRecipes() {
     setLoading(true);
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      const returnUrl = encodeURIComponent(window.location.pathname);
-      navigate(`/auth?returnUrl=${returnUrl}`);
-      return;
-    }
-
-    const res = await fetch("http://localhost:8000/api/my-recipes/", {
+    const res = await fetchWithAuth("http://localhost:8000/api/my-recipes/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -34,7 +29,7 @@ export default function MyRecipes() {
   async function handleCreateRecipe(payload) {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:8000/api/my-recipes/", {
+    const res = await fetchWithAuth("http://localhost:8000/api/my-recipes/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,13 +51,8 @@ export default function MyRecipes() {
     console.log(recipe_id);
     try {
     const token = localStorage.getItem("token");
-    if(!token) {
-      const returnUrl = encodeURIComponent(window.location.pathname);
-      navigate(`/auth?returnUrl=${returnUrl}`);
-      return;
-    }
-
-    const res = await fetch(`http://localhost:8000/api/my-recipes/${recipe_id}`,{
+    
+    const res = await fetchWithAuth(`http://localhost:8000/api/my-recipes/${recipe_id}`,{
       method : "DELETE",
       headers: {
         Authorization : `Bearer ${token}`,

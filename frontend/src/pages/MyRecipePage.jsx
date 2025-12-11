@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaUtensils, FaClock, FaFire } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function MyRecipePage() {
   const { id } = useParams();
@@ -13,12 +14,7 @@ export default function MyRecipePage() {
     async function fetchRecipe() {
       try {
         const token = localStorage.getItem("token");
-        if(!token){
-            const returnUrl = encodeURIComponent(window.location.pathname);
-            navigate(`/auth?returnUrl=${returnUrl}`);
-            return
-        }
-        const res = await fetch(`http://localhost:8000/api/my-recipes/${id}`, {
+        const res = await fetchWithAuth(`http://localhost:8000/api/my-recipes/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }

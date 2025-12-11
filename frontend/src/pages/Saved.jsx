@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function Saved() {
   const [recipes, setRecipes] = useState([]);
@@ -12,14 +13,14 @@ export default function Saved() {
 
   async function loadSaved() {
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/auth");
-      return;
-    }
+    // if (!token) {
+    //   navigate("/auth");
+    //   return;
+    // }
 
     setLoading(true);
 
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `http://localhost:8000/api/recipes/saved?page=${page}&per_page=${perPage}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -34,7 +35,7 @@ export default function Saved() {
   async function handleUnsave(recipeId) {
     const token = localStorage.getItem("token");
 
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `http://localhost:8000/api/recipes/unsave/${recipeId}`,
       {
         method: "DELETE",
