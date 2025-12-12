@@ -9,8 +9,8 @@ import Saved from './pages/Saved.jsx'
 import MyRecipes from './pages/MyRecipes.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 import MyRecipePage from './pages/MyRecipePage.jsx'
+import Community from './pages/Community.jsx'
 
-const Community = () => <div>Community Page (to be implemented)</div>;
 const Account = () => <div>Account Page (to be implemented)</div>;
 
 function App() {

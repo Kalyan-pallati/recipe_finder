@@ -12,35 +12,22 @@ export default function Saved() {
   const navigate = useNavigate();
 
   async function loadSaved() {
-    const token = localStorage.getItem("token");
-    // if (!token) {
-    //   navigate("/auth");
-    //   return;
-    // }
-
     setLoading(true);
 
     const res = await fetchWithAuth(
-      `http://localhost:8000/api/recipes/saved?page=${page}&per_page=${perPage}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      `http://localhost:8000/api/recipes/saved?page=${page}&per_page=${perPage}`
     );
 
     const data = await res.json();
-
     setRecipes(data.results);
     setTotal(data.total_results);
     setLoading(false);
   }
 
   async function handleUnsave(recipeId) {
-    const token = localStorage.getItem("token");
-
     const res = await fetchWithAuth(
       `http://localhost:8000/api/recipes/unsave/${recipeId}`,
-      {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
-      }
+      { method: "DELETE" }
     );
 
     if (res.ok) {
@@ -73,44 +60,77 @@ export default function Saved() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {recipes.map((rec) => (
-          <div
+          <article
             key={rec.recipe_id}
-            className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden"
+            onClick={() => navigate(`/recipe/${rec.recipe_id}`)}
+            className="
+              relative bg-white rounded-xl overflow-hidden shadow 
+              transition-all duration-300 cursor-pointer 
+              group hover:scale-[1.03] hover:shadow-xl
+            "
           >
-            <img
-              src={rec.image}
-              className="w-full h-48 object-cover cursor-pointer"
-              onClick={() => navigate(`/recipe/${rec.recipe_id}`)}
-            />
+            {/* DARK OVERLAY ON HOVER */}
+            <div
+              className="
+                absolute inset-0 bg-black/70 
+                opacity-0 group-hover:opacity-100 
+                transition-opacity duration-300 z-10
+              "
+            ></div>
 
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-1">{rec.title}</h3>
+            {/* CONTENT WRAPPER */}
+            <div className="relative z-20">
+              <img
+                src={rec.image}
+                alt={rec.title}
+                className="w-full h-48 object-cover group-hover:brightness-75 transition"
+              />
 
-              <div className="text-sm text-gray-700 mb-3">
-                ⏱ {rec.readyInMinutes || "?"} mins<br />
-                🔥 {rec.calories || "?"} kcal
-              </div>
+              <div className="p-4 transition duration-300 group-hover:text-white">
+                <h3 className="font-semibold text-lg mb-1">{rec.title}</h3>
 
-              <div className="flex gap-3">
-                <button
-                  className="bg-orange-500 text-white px-4 py-1 rounded-md"
-                  onClick={() => navigate(`/recipe/${rec.recipe_id}`)}
-                >
-                  View
-                </button>
+                <div className="text-sm text-gray-700 group-hover:text-gray-200 mb-3">
+                  ⏱ {rec.readyInMinutes || "?"} mins  
+                  <br />
+                  🔥 {rec.calories || "?"} kcal
+                </div>
 
-                <button
-                  className="bg-red-500 text-white px-4 py-1 rounded-md"
-                  onClick={() => handleUnsave(rec.recipe_id)}
-                >
-                  Unsave
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/recipe/${rec.recipe_id}`);
+                    }}
+                    className="
+                      text-sm px-4 py-1 rounded transition 
+                      bg-orange-500 text-white 
+                      group-hover:bg-white group-hover:text-orange-600
+                    "
+                  >
+                    View
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnsave(rec.recipe_id);
+                    }}
+                    className="
+                      text-sm px-4 py-1 rounded transition
+                      bg-red-500 text-white 
+                      group-hover:bg-white group-hover:text-red-600
+                    "
+                  >
+                    Unsave
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 
+      {/* PAGINATION */}
       <div className="flex justify-center gap-5 mt-10">
         <button
           disabled={page === 1}

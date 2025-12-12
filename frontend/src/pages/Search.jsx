@@ -300,49 +300,83 @@ export default function Search() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {recipes.map((r) => (
                   <article
-                    key={r.id}
-                    onClick={() => navigate(`/recipe/${r.id}`)}
-                    className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition cursor-pointer"
-                  >
-                    <img src={r.image} alt={r.title} className="w-full h-40 object-cover" />
+  key={r.id}
+  onClick={() => navigate(`/recipe/${r.id}`)}
+  className="
+    relative bg-white rounded-lg overflow-hidden shadow 
+    transition-all duration-300 cursor-pointer 
+    group hover:scale-[1.03] hover:shadow-xl
+  "
+>
 
-                    <div className="p-3">
-                      <h3 className="font-semibold text-lg mb-1">{r.title}</h3>
+  {/* DARK HOVER OVERLAY */}
+  <div
+    className="
+      absolute inset-0 bg-black/70 
+      opacity-0 group-hover:opacity-100 
+      transition-opacity duration-300 z-10
+    "
+  ></div>
 
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>⏱ {r.readyInMinutes ?? "N/A"} mins</span>
-                        <span>🔥 {r.calories ?? "N/A"} kcal</span>
-                      </div>
+  {/* CONTENT WRAPPER */}
+  <div className="relative z-20">
 
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/recipe/${r.id}`);
-                          }}
-                          className="text-sm bg-orange-500 text-white px-3 py-1 rounded"
-                        >
-                          View
-                        </button>
+    <img
+      src={r.image}
+      alt={r.title}
+      className="w-full h-40 object-cover group-hover:brightness-75 transition"
+    />
 
-                        {savedIds.includes(r.id) ? (
-                          <button
-                            onClick={(e) => handleUnsave(e, r.id)}
-                            className="text-sm bg-red-500 text-white px-3 py-1 rounded"
-                          >
-                            Unsave
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => handleSave(e, r)}
-                            className="text-sm border px-3 py-1 rounded"
-                          >
-                            Save
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </article>
+    <div className="p-3 transition group-hover:text-white">
+      <h3 className="font-semibold text-lg mb-1">{r.title}</h3>
+
+      <div className="flex items-center gap-4 text-sm text-gray-600 group-hover:text-gray-200">
+        <span>⏱ {r.readyInMinutes ?? "N/A"} mins</span>
+        <span>🔥 {r.calories ?? "N/A"} kcal</span>
+      </div>
+    </div>
+
+    {/* BUTTONS */}
+    <div className="mt-3 flex gap-2 p-3">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/recipe/${r.id}`);
+        }}
+        className="
+          text-sm bg-orange-500 text-white px-3 py-1 rounded 
+          transition group-hover:bg-white group-hover:text-orange-600
+        "
+      >
+        View
+      </button>
+
+      {savedIds.includes(r.id) ? (
+        <button
+          onClick={(e) => handleUnsave(e, r.id)}
+          className="
+            text-sm bg-red-500 text-white px-3 py-1 rounded 
+            transition group-hover:bg-white group-hover:text-red-600
+          "
+        >
+          Unsave
+        </button>
+      ) : (
+        <button
+          onClick={(e) => handleSave(e, r)}
+          className="
+            text-sm border px-3 py-1 rounded transition 
+            group-hover:bg-white group-hover:text-black
+          "
+        >
+          Save
+        </button>
+      )}
+    </div>
+
+  </div>
+</article>
+
                 ))}
               </div>
 

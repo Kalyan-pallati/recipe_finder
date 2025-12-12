@@ -9,8 +9,7 @@ export default function AddRecipeModal({ open, setOpen, onSubmit }) {
 
   const [ingredients, setIngredients] = useState([{ name: "", amount: "" }]);
   const [steps, setSteps] = useState([""]);
-
-
+  const [imageFile, setImageFile] = useState(null);
 
   function addIngredient() {
     setIngredients([...ingredients, { name: "", amount: "" }]);
@@ -45,21 +44,22 @@ export default function AddRecipeModal({ open, setOpen, onSubmit }) {
   function handleSubmit(e) {
     e.preventDefault();
 
-    const payload = {
-      title,
-      readyInMinutes: readyInMinutes ? Number(readyInMinutes) : null,
-      servings: servings ? Number(servings) : null,
-      calories: calories ? Number(calories) : null,
-      ingredients : ingredients.map(i => ({
-        name: i.name,
-        amount: i.amount
-      })),
-      steps: steps.map(s => ({step : s})),
-      image: null,
-    //   description: description || "",
-    };
+    const formData = new FormData();
 
-    onSubmit(payload); 
+    formData.append("title", title);
+    formData.append("readyInMinutes", readyInMinutes);
+    formData.append("servings", servings);
+    formData.append("calories", calories);
+    formData.append("ingredients", JSON.stringify(ingredients));
+    
+    const stepsFormatted = steps.map((s) => ({step : s}));
+    formData.append("steps",JSON.stringify(stepsFormatted));
+
+    if(imageFile){
+      formData.append("image", imageFile);
+    }
+
+    onSubmit(formData); 
     setOpen(false);
   }
 
@@ -128,6 +128,17 @@ export default function AddRecipeModal({ open, setOpen, onSubmit }) {
               value={calories}
               onChange={(e) => setCalories(e.target.value)}
               required
+            />
+          </div>
+
+          {/* IMAGE UPLOAD */}
+          <div>
+            <label className="font-medium">Image (optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="w-full border px-3 py-2 rounded mt-1"
+              onChange={(e) => setImageFile(e.target.files[0])}
             />
           </div>
 
