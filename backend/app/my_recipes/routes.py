@@ -20,6 +20,7 @@ class Step(BaseModel):
 
 class MyRecipeIn(BaseModel):
     title: str
+    user_id: str
     readyInMinutes: Optional[int] = None
     servings: Optional[int] = None
     calories: Optional[float] = None
@@ -35,6 +36,7 @@ class MyRecipeOut(MyRecipeIn):
 def serialize_recipe(doc):
     return {
         "id": str(doc["_id"]),
+        "user_id": doc["user_id"],
         "title": doc["title"],
         "readyInMinutes": doc.get("readyInMinutes"),
         "servings": doc.get("servings"),
@@ -104,7 +106,7 @@ async def get_all_recipes(
     serialized = [serialize_recipe(d) for d in docs]
     return {
         "results": serialized,
-        "toal_results": total,
+        "total_results": total,
         "page": page,
         "per_page": per_page
     }
@@ -130,6 +132,53 @@ async def get_one_recipe(recipe_id: str, user: dict = Depends(get_current_user))
     #     raise HTTPException(403, "Not Authorized")
 
     return serialize_recipe(doc)
+
+@router.put("/{recipe_id}", response_model=MyRecipeOut)
+async def update_recipe(
+    recipe_id: str,
+    title: str = Form(...),
+    readyInMinutes: Optional[int] = Form(None),
+    servings: Optional[int] = Form(None),
+    calories: Optional[float] = Form(None),
+    ingredients: str = Form(...),
+    steps: str = Form(...),
+    image: Optional[UploadFile] = File(None),
+    user: dict = Depends(get_current_user),
+):
+    doc = db.my_recipes.find_one({"_id":ObjectId(recipe_id)})
+
+    if not doc:
+        raise HTTPException(404, "Recipe Not Found")
+    
+    if str(doc["user_id"]) != str(user["_id"]):
+        raise HTTPException(403, "Not Authorized")
+    
+    try:
+        ingredients_data = json.loads(ingredients)
+        steps_data = json.loads(steps)
+    except:
+        raise HTTPException(400, "Invalid JSON for ingredients or steps")
+
+    if image:
+        contents = await image.read()
+        image_url = upload_image(contents)
+    else:
+        image_url = doc.get("image")
+
+    update_data = {
+        "title": title,
+        "readyInMinutes": readyInMinutes,
+        "servings": servings,
+        "calories": calories,
+        "ingredients": ingredients_data,
+        "steps": steps_data,
+        "image": image_url,
+    }
+
+    db.my_recipes.update_one({"_id": ObjectId(recipe_id)}, {"$set": update_data})
+
+    updated = db.my_recipes.find_one({"_id": ObjectId(recipe_id)})
+    return serialize_recipe(updated)
 
 @router.delete("/{recipe_id}")
 async def delete_recipe(recipe_id: str, user: dict = Depends(get_current_user)):

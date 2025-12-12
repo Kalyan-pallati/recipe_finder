@@ -1,0 +1,238 @@
+import { useEffect, useState } from "react";
+
+export default function EditRecipeModal({open, setOpen, initialData, onSubmit}) {
+    const [title, setTitle] = useState("");
+    const [readyInMinutes, setReadyInMinutes] = useState("");
+    const [servings, setServings] = useState("");
+    const [calories, setCalories] = useState("");
+
+    const [ingredients, setIngredients] = useState([{ name: "", amount: "" }]);
+    const [steps, setSteps] = useState([""]);
+    const [imageFile, setImageFile] = useState(null);
+
+    useEffect(() => {
+        if(!initialData) return;
+
+        setTitle(initialData.title || "");
+        setReadyInMinutes(initialData.readyInMinutes || "");
+        setServings(initialData.servings || "");
+        setCalories(initialData.calories || "");
+        setIngredients(initialData.ingredients || [{ name: "", amount: "" }]);
+        setSteps(initialData.steps?.map(s => s.step) || [""]);
+    },[initialData]);
+
+    function addIngredient() {
+        setIngredients([...ingredients, {"name":"", "amount":""}]);
+    }
+
+    function removeIngredient(index) {
+        setIngredients(ingredients.filter((_, i) => i !== index));
+    }
+    function updateIngredient(index, field, value) {
+        const updated = [...ingredients];
+        updated[index][field] = value;
+        setIngredients(updated);
+    }
+
+    function addStep(){
+        setSteps([...steps, ""]);
+    }
+    function updateStep(index, value){
+        const updated = [...steps];
+        updated[index] = value;
+        setSteps(updated);
+    }
+
+    function removeStep(index) {
+        setSteps(steps.filter((_, i) => i !== index))
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+
+        const form = new FormData();
+        
+        form.append("title", title);
+        form.append("readyInMinutes", readyInMinutes );
+        form.append("servings", servings);
+        form.append("calories", calories);
+        form.append("ingredients", JSON.stringify(ingredients));
+
+        const formattedSteps = steps.map((s) => ({step : s}));
+        form.append("steps", JSON.stringify(formattedSteps));
+
+        if (imageFile) form.append("image", image);
+
+        onSubmit(form);
+        setOpen(false);
+    }
+    if(!open) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white w-[750px] max-h-[90vh] rounded-xl shadow-xl p-6 relative overflow-y-auto">
+
+        {/* CLOSE BUTTON */}
+        <button
+          className="absolute top-3 right-3 text-gray-500 hover:text-black text-xl"
+          onClick={() => setOpen(false)}
+        >
+          ✕
+        </button>
+
+        <h2 className="text-xl font-semibold mb-4">Edit Recipe</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+
+          {/* TITLE */}
+          <div>
+            <label className="font-medium">Title</label>
+            <input
+              type="text"
+              className="w-full border px-3 py-2 rounded mt-1"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* TIME + SERVINGS */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="font-medium">Ready In Minutes</label>
+              <input
+                type="number"
+                className="w-full border px-3 py-2 rounded mt-1"
+                value={readyInMinutes}
+                onChange={(e) => setReadyInMinutes(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="font-medium">Servings</label>
+              <input
+                type="number"
+                className="w-full border px-3 py-2 rounded mt-1"
+                value={servings}
+                onChange={(e) => setServings(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* CALORIES */}
+          <div>
+            <label className="font-medium">Calories</label>
+            <input
+              type="number"
+              className="w-full border px-3 py-2 rounded mt-1"
+              value={calories}
+              onChange={(e) => setCalories(e.target.value)}
+            />
+          </div>
+
+          {/* IMAGE UPLOAD */}
+          <div>
+            <label className="font-medium">Image (optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="w-full border px-3 py-2 rounded mt-1"
+              onChange={(e) => setImageFile(e.target.files[0])}
+            />
+            {initialData?.image && (
+              <p className="text-xs mt-1 text-gray-500">
+                Current image will be kept unless you upload a new one.
+              </p>
+            )}
+          </div>
+
+          {/* INGREDIENTS */}
+          <div>
+            <label className="font-medium">Ingredients</label>
+
+            {ingredients.map((ing, index) => (
+              <div key={index} className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  className="flex-1 border px-3 py-2 rounded"
+                  value={ing.name}
+                  onChange={(e) =>
+                    updateIngredient(index, "name", e.target.value)
+                  }
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Amount"
+                  className="w-24 border px-3 py-2 rounded"
+                  value={ing.amount}
+                  onChange={(e) =>
+                    updateIngredient(index, "amount", e.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  className="text-red-500"
+                  onClick={() => removeIngredient(index)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addIngredient}
+              className="mt-2 px-3 py-1 bg-gray-200 rounded"
+            >
+              + Add Ingredient
+            </button>
+          </div>
+
+          {/* STEPS */}
+          <div>
+            <label className="font-medium">Instructions</label>
+
+            {steps.map((step, index) => (
+              <div key={index} className="flex gap-2 mt-2">
+                <textarea
+                  className="flex-1 border px-3 py-2 rounded"
+                  rows="2"
+                  value={step}
+                  onChange={(e) => updateStep(index, e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="text-red-500"
+                  onClick={() => removeStep(index)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addStep}
+              className="mt-2 px-3 py-1 bg-gray-200 rounded"
+            >
+              + Add Step
+            </button>
+          </div>
+
+          {/* SUBMIT */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          >
+            Save Changes
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+    );
+}

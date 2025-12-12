@@ -23,7 +23,7 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/my-recipe" element={<RequireAuth><MyRecipes /></RequireAuth>} />
           <Route path="/my-recipes/:id" element={<MyRecipePage />}></Route>
-          <Route path="/community" element={<Community />} />
+          <Route path="/community" element={<RequireAuth><Community /></RequireAuth>} />
           <Route path="/account" element={<Account />} />
           <Route path="/saved" element={ <RequireAuth><Saved /></RequireAuth>} />
           <Route path="/recipe/:id" element={<Recipe />} />

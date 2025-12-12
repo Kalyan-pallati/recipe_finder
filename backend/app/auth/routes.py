@@ -9,8 +9,9 @@ router = APIRouter()
 class AuthIn(BaseModel):
     email : EmailStr
     password : str
-class AuthInSignUp(BaseModel):
+class AuthRegister(BaseModel):
     email : EmailStr
+    username: str
     password : str
     confirm_password : str
 
@@ -21,7 +22,7 @@ class TokenOut(BaseModel):
 
 #Router for Registration
 @router.post("/register", response_model=TokenOut, status_code=status.HTTP_201_CREATED)
-def register(payload: AuthInSignUp):
+def register(payload: AuthRegister):
     users = db.users
 
     if users.find_one({"email": payload.email}):
@@ -31,9 +32,21 @@ def register(payload: AuthInSignUp):
         raise HTTPException(status_code=400, detail="Passwords do not match")
     
     hashed = hash_password(payload.password)
-    users.insert_one({"email": payload.email, "hashed_password": hashed})
 
-    token = create_access_token(payload.email)
+    new_user = {
+        "email": payload.email,
+        "username": payload.username,
+        "hashed_password":hashed
+    }
+    result = users.insert_one(new_user)
+
+    token = create_access_token(
+        data={
+            "id": str(result.inserted_id),
+            "email":payload.email,
+            "username":payload.username    
+        }
+    )
     return {"access_token" : token, "token_type" : "bearer"}
 
 #Router for Login
@@ -48,5 +61,11 @@ def login(payload: AuthIn):
     if not verify_password(payload.password, user["hashed_password"]):
         raise HTTPException(status_code=400, detail="invalid Credentials")
     
-    token = create_access_token(payload.email)
+    token = create_access_token(
+        data={
+            "id": str(user["_id"]),
+            "email": user["email"],
+            "username":user["username"],
+        }
+    )
     return {"access_token" : token, "token_type" : "bearer"}

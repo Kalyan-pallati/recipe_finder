@@ -5,6 +5,7 @@ import os
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from app.database import db
+from bson import ObjectId
 
 SECRET = os.getenv("SECRET_KEY", "default_secret")
 ALGORITHM = "HS256"
@@ -20,12 +21,12 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_ctx.verify(plain_password, hashed_password)
 
-def create_access_token(email: str) -> str:
+def create_access_token(data: dict):
     now = int(time.time())
     payload = {
-        "sub" : email,
-        "iat" : now,
-        "exp" : now + ACCESS_TOKEN_EXPIRE_SECONDS
+        **data,
+        "iat": now,
+        "exp": now + ACCESS_TOKEN_EXPIRE_SECONDS
     }
     token = jwt.encode(payload, SECRET, algorithm=ALGORITHM)
     return token
@@ -38,16 +39,17 @@ def get_current_user(credentials = Depends(auth_scheme)):
 
     try:
         payload = decode_token(token)
-        email = payload.get("sub")
-        if not email:
-            raise HTTPException(status_code=401, detail="Invalid Token")
+        user_id = payload.get("id")
+        email = payload.get("email")
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid or Expired Token")
-    
-    users = db.users
-    user = users.find_one({"email" : email})
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    if not user_id or not email:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+
+    user = db.users.find_one({"_id": ObjectId(user_id)})
 
     if not user:
-        raise HTTPException(status_code=404, detail="User Not Found")
-    
+        raise HTTPException(status_code=404, detail="User not found")
+
     return user

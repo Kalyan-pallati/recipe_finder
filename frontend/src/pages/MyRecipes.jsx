@@ -7,6 +7,7 @@ export default function MyRecipes() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [editRecipe, setOpenEdit] = useState(null);
   const navigate = useNavigate();
 
   async function fetchMyRecipes() {

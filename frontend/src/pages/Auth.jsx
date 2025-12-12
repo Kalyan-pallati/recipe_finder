@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
 
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState(""); // NEW FIELD
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -25,8 +26,16 @@ export default function Auth() {
     });
 
     const data = await res.json();
+
     if (res.ok) {
       localStorage.setItem("token", data.access_token);
+
+      // decode the JWT to extract user_id
+      const decoded = jwtDecode(data.access_token);
+
+      // store user_id in localStorage
+      localStorage.setItem("user_id", decoded.id);
+
       navigate(returnUrl);
     } else {
       alert("Login failed: " + data.detail);
@@ -41,17 +50,21 @@ export default function Auth() {
       return;
     }
 
+    const payload = {
+      email,
+      username, // send to backend
+      password,
+      confirm_password: confirmPassword,
+    };
+
     const res = await fetch("http://localhost:8000/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        password,
-        confirm_password: confirmPassword,
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
+
     if (res.ok) {
       alert("Account created! Please login.");
       setIsSignUp(false);
@@ -64,9 +77,10 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="relative w-[900px] h-[520px] bg-white rounded-2xl shadow-2xl overflow-hidden flex">
 
-        {/* LEFT: Forms */}
+        {/* LEFT SIDE FORMS */}
         <div className="w-1/2 h-full p-12 flex flex-col justify-center transition-all duration-500">
           {!isSignUp ? (
+            /* LOGIN FORM */
             <form onSubmit={handleLogin} className="animate-fadeIn">
               <h2 className="text-4xl font-bold mb-8">Sign In</h2>
 
@@ -75,6 +89,7 @@ export default function Auth() {
                 placeholder="Email"
                 className="mb-4 px-4 py-3 border rounded-lg w-full"
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
 
               <input
@@ -82,6 +97,7 @@ export default function Auth() {
                 placeholder="Password"
                 className="mb-6 px-4 py-3 border rounded-lg w-full"
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
 
               <button className="bg-orange-500 w-full text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
@@ -89,6 +105,7 @@ export default function Auth() {
               </button>
             </form>
           ) : (
+            /* SIGNUP FORM */
             <form onSubmit={handleSignup} className="animate-fadeIn">
               <h2 className="text-4xl font-bold mb-8">Create Account</h2>
 
@@ -97,6 +114,16 @@ export default function Auth() {
                 placeholder="Email"
                 className="mb-4 px-4 py-3 border rounded-lg w-full"
                 onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+
+              {/* USERNAME FIELD */}
+              <input
+                type="text"
+                placeholder="Username"
+                className="mb-4 px-4 py-3 border rounded-lg w-full"
+                onChange={(e) => setUsername(e.target.value)}
+                required
               />
 
               <input
@@ -104,6 +131,7 @@ export default function Auth() {
                 placeholder="Password"
                 className="mb-4 px-4 py-3 border rounded-lg w-full"
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
 
               <input
@@ -111,6 +139,7 @@ export default function Auth() {
                 placeholder="Confirm Password"
                 className="mb-6 px-4 py-3 border rounded-lg w-full"
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                required
               />
 
               <button className="bg-green-600 w-full text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
@@ -120,7 +149,7 @@ export default function Auth() {
           )}
         </div>
 
-        {/* RIGHT: Sliding Panel */}
+        {/* RIGHT SLIDING PANEL */}
         <div
           className={`
             w-1/2 h-full flex flex-col items-center justify-center text-white
@@ -152,6 +181,7 @@ export default function Auth() {
             </>
           )}
         </div>
+
       </div>
     </div>
   );
