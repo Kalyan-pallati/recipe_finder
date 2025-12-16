@@ -24,9 +24,9 @@ export default function Saved() {
     setLoading(false);
   }
 
-  async function handleUnsave(recipeId) {
+  async function handleUnsave(recipeId, source_type) {
     const res = await fetchWithAuth(
-      `http://localhost:8000/api/recipes/unsave/${recipeId}`,
+      `http://localhost:8000/api/recipes/unsave/${recipeId}?source_type=${source_type}`,
       { method: "DELETE" }
     );
 
@@ -69,7 +69,6 @@ export default function Saved() {
               group hover:scale-[1.03] hover:shadow-xl
             "
           >
-            {/* DARK OVERLAY ON HOVER */}
             <div
               className="
                 absolute inset-0 bg-black/70 
@@ -77,8 +76,6 @@ export default function Saved() {
                 transition-opacity duration-300 z-10
               "
             ></div>
-
-            {/* CONTENT WRAPPER */}
             <div className="relative z-20">
               <img
                 src={rec.image}
@@ -113,7 +110,7 @@ export default function Saved() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleUnsave(rec.recipe_id);
+                      handleUnsave(rec.recipe_id, rec.source_type);
                     }}
                     className="
                       text-sm px-4 py-1 rounded transition
@@ -130,7 +127,6 @@ export default function Saved() {
         ))}
       </div>
 
-      {/* PAGINATION */}
       <div className="flex justify-center gap-5 mt-10">
         <button
           disabled={page === 1}

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, EmailStr
+import secrets, time
 from app.database import db
-from app.auth.utils import hash_password, verify_password, create_access_token
+from app.auth.utils import hash_password, verify_password, create_access_token, send_verification_email
 
 router = APIRouter()
 
@@ -20,34 +21,66 @@ class TokenOut(BaseModel):
     access_token : str
     token_type : str = "bearer"
 
+class MessageOut(BaseModel):
+    message: str
+
 #Router for Registration
-@router.post("/register", response_model=TokenOut, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=MessageOut, status_code=status.HTTP_201_CREATED)
 def register(payload: AuthRegister):
     users = db.users
+    pending = db.pending_users
 
     if users.find_one({"email": payload.email}):
         raise HTTPException(status_code= 400, detail="Email already resgitered")
     
+    if pending.find_one({"email": payload.email}):
+        raise HTTPException(status_code=400, detail="Verification already Sent")
+    
     if payload.password != payload.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
     
-    hashed = hash_password(payload.password)
+    token = secrets.token_urlsafe(32)
 
-    new_user = {
+    pending.insert_one({
         "email": payload.email,
         "username": payload.username,
-        "hashed_password":hashed
-    }
-    result = users.insert_one(new_user)
+        "hashed_password": hash_password(payload.password),
+        "verification_token": token,
+        "expires_at": int(time.time()) + 3600
+    })
 
-    token = create_access_token(
-        data={
-            "id": str(result.inserted_id),
-            "email":payload.email,
-            "username":payload.username    
-        }
-    )
-    return {"access_token" : token, "token_type" : "bearer"}
+    send_verification_email(payload.email, token)
+    
+    return {
+        "message": "Verification email Sent"
+    }
+
+#Router for Verification
+@router.get("/verify")
+def verify_email(token: str = Query(...)):
+    users = db.users
+    pending = db.pending_users
+
+    record = pending.find_one({"verification_token": token})
+
+    if not record:
+        raise HTTPException(400, "Invalid or expired verification Link")
+    
+    if record["expires_at"] < int(time.time()):
+        pending.delete_one({"_id": record["_id"]})
+        raise HTTPException(400, "Verification Link Expired")
+    
+    result = users.insert_one({
+        "email": record["email"],
+        "username": record["username"],
+        "hashed_password": record["hashed_password"],
+        "created_at": int(time.time())
+    })
+
+    pending.delete_one({"_id": record["_id"]})
+    return {
+        "message": "Email successfully verified. Please Log in"
+    }
 
 #Router for Login
 @router.post("/login", response_model=TokenOut)

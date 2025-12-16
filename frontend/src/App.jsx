@@ -10,6 +10,8 @@ import MyRecipes from './pages/MyRecipes.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 import MyRecipePage from './pages/MyRecipePage.jsx'
 import Community from './pages/Community.jsx'
+import Verify from './pages/Verify.jsx'
+import MealPlanner from './pages/MealPlanner.jsx'
 
 const Account = () => <div>Account Page (to be implemented)</div>;
 
@@ -24,9 +26,10 @@ function App() {
           <Route path="/my-recipe" element={<RequireAuth><MyRecipes /></RequireAuth>} />
           <Route path="/my-recipes/:id" element={<MyRecipePage />}></Route>
           <Route path="/community" element={<RequireAuth><Community /></RequireAuth>} />
-          <Route path="/account" element={<Account />} />
+          <Route path="/meal-planner" element={<RequireAuth><MealPlanner /></RequireAuth>} />
           <Route path="/saved" element={ <RequireAuth><Saved /></RequireAuth>} />
           <Route path="/recipe/:id" element={<Recipe />} />
+          <Route path="/verify" element={<Verify />}></Route>
         </Route>
 
         <Route path="/auth" element={<Auth />} />

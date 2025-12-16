@@ -1,5 +1,3 @@
-import {logout} from "./auth";
-
 export async function fetchWithAuth(url, options = {}) {
     const token = localStorage.getItem("token");
 

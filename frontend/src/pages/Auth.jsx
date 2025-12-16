@@ -29,11 +29,7 @@ export default function Auth() {
 
     if (res.ok) {
       localStorage.setItem("token", data.access_token);
-
-      // decode the JWT to extract user_id
       const decoded = jwtDecode(data.access_token);
-
-      // store user_id in localStorage
       localStorage.setItem("user_id", decoded.id);
 
       navigate(returnUrl);
@@ -52,7 +48,7 @@ export default function Auth() {
 
     const payload = {
       email,
-      username, // send to backend
+      username,
       password,
       confirm_password: confirmPassword,
     };
@@ -66,7 +62,7 @@ export default function Auth() {
     const data = await res.json();
 
     if (res.ok) {
-      alert("Account created! Please login.");
+      alert("Verification Email Sent. Please check your inbox");
       setIsSignUp(false);
     } else {
       alert("Signup failed: " + data.detail);
@@ -77,10 +73,8 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="relative w-[900px] h-[520px] bg-white rounded-2xl shadow-2xl overflow-hidden flex">
 
-        {/* LEFT SIDE FORMS */}
         <div className="w-1/2 h-full p-12 flex flex-col justify-center transition-all duration-500">
           {!isSignUp ? (
-            /* LOGIN FORM */
             <form onSubmit={handleLogin} className="animate-fadeIn">
               <h2 className="text-4xl font-bold mb-8">Sign In</h2>
 
@@ -105,7 +99,6 @@ export default function Auth() {
               </button>
             </form>
           ) : (
-            /* SIGNUP FORM */
             <form onSubmit={handleSignup} className="animate-fadeIn">
               <h2 className="text-4xl font-bold mb-8">Create Account</h2>
 
@@ -117,7 +110,6 @@ export default function Auth() {
                 required
               />
 
-              {/* USERNAME FIELD */}
               <input
                 type="text"
                 placeholder="Username"
@@ -148,8 +140,7 @@ export default function Auth() {
             </form>
           )}
         </div>
-
-        {/* RIGHT SLIDING PANEL */}
+        
         <div
           className={`
             w-1/2 h-full flex flex-col items-center justify-center text-white

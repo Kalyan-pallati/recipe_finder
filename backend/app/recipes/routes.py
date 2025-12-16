@@ -1,3 +1,4 @@
+import time
 from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional
 import os
@@ -6,7 +7,7 @@ from dotenv import load_dotenv
 
 from app.database import db
 from app.auth.utils import get_current_user
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 load_dotenv()
 
@@ -20,11 +21,12 @@ BASE_URL = "https://api.spoonacular.com"
 # -----------------------------
 
 class SaveRecipeIn(BaseModel):
-    recipe_id: int
+    recipe_id: str
     title: str
     image: Optional[str] = None
     readyInMinutes: Optional[int] = None
     calories: Optional[float] = None
+    source_type: str = Field(..., pattern="^(spoonacular|community)$")
 
 
 # -----------------------------
@@ -149,6 +151,18 @@ async def get_saved_recipes(
         "results": saved_items
     }
 
+@router.get("/saved_recipes")
+async def saved_recipes(user: dict = Depends(get_current_user)):
+    user_id = str(user["_id"])
+    collection = db.saved_recipes
+
+    saved_ids_cursor = collection.find(
+        {"user_id": user_id}, 
+        {"_id": 0, "recipe_id": 1})
+
+    saved_ids = [item["recipe_id"] for item in saved_ids_cursor]
+
+    return {"saved_ids": saved_ids}
 
 
 @router.get("/is-saved/{recipe_id}")
@@ -170,14 +184,14 @@ async def save_recipe(
     user: dict = Depends(get_current_user)
 ):
     user_id = str(user["_id"])
-
     saved_collection = db.saved_recipes
 
-    if saved_collection.find_one({"user_id": user_id, "recipe_id": payload.recipe_id}):
+    if saved_collection.find_one({"user_id": user_id, "recipe_id": payload.recipe_id,"source_type":payload.source_type}):
         return {"message": "Recipe already saved"}
 
     saved_collection.insert_one({
         "user_id": user_id,
+        "timestamp": int(time.time()),
         **payload.model_dump()
     })
 
@@ -186,7 +200,8 @@ async def save_recipe(
 
 @router.delete("/unsave/{recipe_id}")
 async def unsave_recipe(
-    recipe_id: int,
+    recipe_id: str,
+    source_type: str = Query(..., pattern="^(spoonacular|community)$"),
     user: dict = Depends(get_current_user)
 ):
     user_id = str(user["_id"])
@@ -194,7 +209,8 @@ async def unsave_recipe(
 
     result = saved_collection.delete_one({
         "user_id": user_id,
-        "recipe_id": recipe_id
+        "recipe_id": recipe_id,
+        "source_type": source_type
     })
 
     if result.deleted_count == 0:

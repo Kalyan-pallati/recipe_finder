@@ -5,6 +5,7 @@ from app.auth.routes import router as auth_router
 from app.users.routes import router as users_router
 from app.recipes.routes import router as recipes_router
 from app.my_recipes.routes import router as my_recipes_router
+from app.meal.routes import router as meal_router
 
 app = FastAPI(title="Recipe Finder - Backend API")
 
@@ -28,6 +29,8 @@ app.include_router(users_router, prefix="/api/users", tags=["users"])
 app.include_router(recipes_router, prefix="/api/recipes", tags=["recipes"])
 
 app.include_router(my_recipes_router, prefix="/api/my-recipes", tags=["my-recipes"])
+
+app.include_router(meal_router, prefix="/api/meal", tags=["meal-planner"])
 
 @app.get("/")
 def read_root():

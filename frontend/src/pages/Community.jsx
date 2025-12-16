@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
@@ -9,6 +9,62 @@ export default function CommunityRecipes() {
   const [total, setTotal] = useState(0);
   const perPage = 12;
   const navigate = useNavigate();
+
+  const [savedIds, setSavedIds] = useState([]);
+
+  useEffect(() => {
+        async function loadSaved() {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            const res = await fetchWithAuth("http://localhost:8000/api/recipes/saved_recipes", { headers: { Authorization: `Bearer ${token}` } });
+            const data = await res.json()
+            console.log(data);
+            if (res.ok) {
+                setSavedIds(data.saved_ids.map(id => String(id)));
+            }
+        }
+        loadSaved();
+    }, []);
+
+  async function handleSave(e, recipe) {
+    e.stopPropagation();
+    const token = localStorage.getItem("token");
+    // console.log(recipe.id);
+    // console.log(recipe.title);
+    // console.log(recipe.image);
+    // console.log(recipe.readyInMinutes)
+    // console.log(recipe.calories)
+    const res = await fetchWithAuth("http://localhost:8000/api/recipes/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        recipe_id: String(recipe.id),
+        source_type: "community",
+        title: recipe.title,
+        image: recipe.image,
+        readyInMinutes: recipe.readyInMinutes,
+        calories: recipe.calories,
+      }),
+    });
+
+    if (res.ok) setSavedIds((prev) => [...prev, String(recipe.id)]);
+  }
+
+  async function handleUnsave(e, recipeId) {
+    e.stopPropagation();
+    const token = localStorage.getItem("token");
+
+    const source_type = "community";
+    const res = await fetchWithAuth(`http://localhost:8000/api/recipes/unsave/${String(recipeId)}?source_type=${source_type}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) setSavedIds((prev) => prev.filter((id) => id !== recipeId));
+  }
 
   async function fetchAllRecipes() {
     setLoading(true);
@@ -77,7 +133,7 @@ export default function CommunityRecipes() {
                       <span>🔥 {r.calories ?? "N/A"} kcal</span>
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-3 flex gap-5">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -91,6 +147,21 @@ export default function CommunityRecipes() {
                       >
                         View
                       </button>
+                      {savedIds.includes(r.id) ? (
+                        <button
+                        onClick={(e) => handleUnsave(e, r.id)}
+                        className="
+                        text-sm bg-red-500 text-white px-3 py-1 rounded 
+                        transition group-hover:bg-white group-hover:text-red-600">
+                        Unsave</button>
+                      ) : (
+                    <button
+                      onClick={(e) => handleSave(e, r)}
+                      className="
+                      text-sm border px-3 py-1 rounded transition 
+                      group-hover:bg-white group-hover:text-black">
+                      Save</button>
+                      )}
                     </div>
                   </div>
 

@@ -6,6 +6,16 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from app.database import db
 from bson import ObjectId
+from email.message import EmailMessage
+import smtplib
+
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+
+SMTP_EMAIL = "pallatikalyansai@gmail.com"
+SMTP_PASSWORD = "cwcr ybqq vpco llwt"
+
+FRONTEND_VERIFY_URL = "http://localhost:5173/verify"
 
 SECRET = os.getenv("SECRET_KEY", "default_secret")
 ALGORITHM = "HS256"
@@ -53,3 +63,29 @@ def get_current_user(credentials = Depends(auth_scheme)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return user
+
+def send_verification_email(to_email: str, token: str):
+    verify_link = f"{FRONTEND_VERIFY_URL}?token={token}"
+
+    msg = EmailMessage()
+    msg["Subject"] = "Verify Your Account"
+    msg["From"] = SMTP_EMAIL
+    msg["To"] = to_email
+
+    msg.set_content(f"""
+Hi,
+                    
+Thanks for signing up!
+                    
+Please verify your email by clicking on the link below:
+                
+{verify_link}
+
+This link will expire in 1 hour,
+
+If you didn't create this account, ignore this email
+                    """)
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SMTP_EMAIL, SMTP_PASSWORD)
+        server.send_message(msg)
