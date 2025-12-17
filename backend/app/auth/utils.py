@@ -12,7 +12,7 @@ import random
 import string
 
 SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 465
+SMTP_PORT = 587
 
 SMTP_EMAIL = "pallatikalyansai@gmail.com"
 SMTP_PASSWORD = "cwcr ybqq vpco llwt"
