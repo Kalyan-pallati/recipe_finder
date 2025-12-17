@@ -53,11 +53,11 @@ export default function MealSchedulerModal({ date, type, onClose, onMealAdded })
         setScheduling(true);
         setError(null);
         const token = localStorage.getItem('token');
-
+        console.log(selectedRecipe.source_type);
         const payload = {
             source_id: String(selectedRecipe.recipe_id), 
-            source_type: selectedRecipe.source_type, 
-            date: date,
+            source_type: selectedRecipe.source_type ? 'spoonacular' : 'community',
+            date: typeof date === 'object' ? date.toISOString().split('T')[0] : date,
             meal_type: type,
             title: selectedRecipe.title,
             image: selectedRecipe.image || null, 
