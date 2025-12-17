@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 
 import Home from './pages/Home.jsx'
-// import Auth from './pages/Auth.jsx'
 import Search from './pages/Search.jsx'
 import Recipe from './pages/Recipe.jsx'
 import Saved from './pages/Saved.jsx'
