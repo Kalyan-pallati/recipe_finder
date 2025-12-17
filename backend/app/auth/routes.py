@@ -42,8 +42,6 @@ async def register(payload: AuthRegister):
     
     otp = generate_otp()
 
-    send_verification_email(payload.email, otp)
-
     pending.insert_one({
         "email": payload.email,
         "username": payload.username,
@@ -52,6 +50,7 @@ async def register(payload: AuthRegister):
         "expires_at": int(time.time()) + 600
     })
     
+    await send_verification_email(payload.email, otp)
     return {
         "message": "Verification email Sent"
     }

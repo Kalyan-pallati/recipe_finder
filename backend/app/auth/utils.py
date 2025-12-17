@@ -7,7 +7,7 @@ from fastapi.security import HTTPBearer
 from app.database import db
 from bson import ObjectId
 from email.message import EmailMessage
-import smtplib
+from aiosmtplib import SMTP
 import random
 import string
 
@@ -68,7 +68,6 @@ def get_current_user(credentials = Depends(auth_scheme)):
     return user
 
 async def send_verification_email(to_email: str, otp: str):
-
     msg = EmailMessage()
     msg["Subject"] = "Verification Code"
     msg["From"] = SMTP_EMAIL
@@ -76,18 +75,25 @@ async def send_verification_email(to_email: str, otp: str):
 
     msg.set_content(f"""
 Hi,
-                    
+
 Thanks for signing up!
-                    
-You can find your verification otp below:
-                
+
+Your verification OTP is:
+
 {otp}
 
-This link will expire in 10 minutes,
+This code will expire in 10 minutes.
 
-If you didn't create this account, ignore this email
-                    """)
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        await server.starttls()
-        await server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        await server.send_message(msg)
+If you didn't create this account, ignore this email.
+""")
+
+    smtp = SMTP(
+        hostname=SMTP_HOST,
+        port=SMTP_PORT,
+        start_tls=True
+    )
+
+    await smtp.connect()
+    await smtp.login(SMTP_EMAIL, SMTP_PASSWORD)
+    await smtp.send_message(msg)
+    await smtp.quit()
