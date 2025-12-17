@@ -9,7 +9,6 @@ import MyRecipes from './pages/MyRecipes.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 import MyRecipePage from './pages/MyRecipePage.jsx'
 import Community from './pages/Community.jsx'
-import Verify from './pages/Verify.jsx'
 import MealPlanner from './pages/MealPlanner.jsx'
 import Login from './pages/Login.jsx'
 import SignUp from './pages/SignUp.jsx'
@@ -30,7 +29,6 @@ function App() {
           <Route path="/meal-planner" element={<RequireAuth><MealPlanner /></RequireAuth>} />
           <Route path="/saved" element={ <RequireAuth><Saved /></RequireAuth>} />
           <Route path="/recipe/:id" element={<Recipe />} />
-          <Route path="/verify" element={<Verify />}></Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />}></Route>
         </Route>
