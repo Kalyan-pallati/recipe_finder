@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from app.database import db
 from app.auth.utils import get_current_user
 from pydantic import BaseModel, Field
+# from bson import ObjectId
 
 load_dotenv()
 
@@ -167,7 +168,7 @@ async def saved_recipes(user: dict = Depends(get_current_user)):
 
 @router.get("/is-saved/{recipe_id}")
 async def is_recipe_saved(
-    recipe_id: int,
+    recipe_id: str,
     user: dict = Depends(get_current_user)
 ):
     user_id = str(user["_id"])
@@ -225,7 +226,7 @@ async def unsave_recipe(
 # -----------------------------
 
 @router.get("/{recipe_id}")
-async def get_recipe_details(recipe_id: int):
+async def get_recipe_details(recipe_id: str):
     if not API_KEY:
         raise HTTPException(500, "Missing Spoonacular API Key")
 
@@ -255,9 +256,11 @@ async def get_recipe_details(recipe_id: int):
                 "unit": ing.get("unit"),
             }
             for ing in data.get("extendedIngredients", [])
-        ],
+    ],
         "instructions": data.get("instructions"),
         "nutrition": data.get("nutrition", {}).get("nutrients", []),
     }
 
     return recipe
+        
+

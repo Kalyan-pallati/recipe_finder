@@ -8,14 +8,14 @@ from app.database import db
 from bson import ObjectId
 from email.message import EmailMessage
 import smtplib
+import random
+import string
 
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
 
 SMTP_EMAIL = "pallatikalyansai@gmail.com"
 SMTP_PASSWORD = "cwcr ybqq vpco llwt"
-
-FRONTEND_VERIFY_URL = "http://localhost:5173/verify"
 
 SECRET = os.getenv("SECRET_KEY", "default_secret")
 ALGORITHM = "HS256"
@@ -44,6 +44,9 @@ def create_access_token(data: dict):
 def decode_token(token: str) -> dict:
     return jwt.decode(token, SECRET, algorithms=[ALGORITHM])
 
+def generate_otp() -> str:
+    return "".join(random.choices(string.digits, k=6))
+
 def get_current_user(credentials = Depends(auth_scheme)):
     token = credentials.credentials
 
@@ -64,11 +67,10 @@ def get_current_user(credentials = Depends(auth_scheme)):
 
     return user
 
-def send_verification_email(to_email: str, token: str):
-    verify_link = f"{FRONTEND_VERIFY_URL}?token={token}"
+def send_verification_email(to_email: str, otp: str):
 
     msg = EmailMessage()
-    msg["Subject"] = "Verify Your Account"
+    msg["Subject"] = "Verification Code"
     msg["From"] = SMTP_EMAIL
     msg["To"] = to_email
 
@@ -77,11 +79,11 @@ Hi,
                     
 Thanks for signing up!
                     
-Please verify your email by clicking on the link below:
+You can find your verification otp below:
                 
-{verify_link}
+{otp}
 
-This link will expire in 1 hour,
+This link will expire in 10 minutes,
 
 If you didn't create this account, ignore this email
                     """)

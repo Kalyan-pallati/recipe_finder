@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaUtensils, FaClock, FaFire } from "react-icons/fa";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Recipe() {
     const { id } = useParams(); 
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const [isSaved, setIsSaved] = useState(false);
 
@@ -77,13 +79,13 @@ export default function Recipe() {
             try {
                 const res = await fetch(`http://localhost:8000/api/recipes/${id}`); 
                 if (!res.ok) throw new Error("Recipe not found");
-
                 const data = await res.json();
                 setRecipe(data);
             } catch (err) {
                 setRecipe(null);
             } finally {
                 setLoading(false);
+                console.log(recipe);
             }
         }
 
@@ -93,24 +95,18 @@ export default function Recipe() {
 
             try {
                 const res = await fetchWithAuth(
-                    `http://localhost:8000/api/recipes/is-saved/${id}`,
-                    {
+                    `http://localhost:8000/api/recipes/is-saved/${id}`,{ 
                         headers: {
-                            "Authorization": `Bearer ${token}`,
-                        },
-                    }
-                );
-
+                         "Authorization": `Bearer ${token}`,},
+                });
                 if (!res.ok) return;
-
                 const data = await res.json();
                 setIsSaved(data.saved);
             } catch (err) {
                 console.error("Error checking saved status:", err);
             }
         }
-
-        fetchRecipeDetails();
+        if(id && sourceType) fetchRecipeDetails();
         checkSavedStatus(); 
     }, [id]);
 

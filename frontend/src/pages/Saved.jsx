@@ -62,7 +62,13 @@ export default function Saved() {
         {recipes.map((rec) => (
           <article
             key={rec.recipe_id}
-            onClick={() => navigate(`/recipe/${rec.recipe_id}`)}
+            onClick={() => {
+              if(rec.source_type === "spoonacular"){
+              navigate(`/recipe/${rec.recipe_id}?source_type=${rec.source_type}`)}
+              else if(rec.source_type === "community"){
+                navigate(`/my-recipes/${rec.recipe_id}`)
+              }
+            }}
             className="
               relative bg-white rounded-xl overflow-hidden shadow 
               transition-all duration-300 cursor-pointer 

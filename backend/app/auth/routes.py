@@ -2,11 +2,10 @@ from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, EmailStr
 import secrets, time
 from app.database import db
-from app.auth.utils import hash_password, verify_password, create_access_token, send_verification_email
+from app.auth.utils import hash_password, verify_password, create_access_token, send_verification_email, generate_otp
 
 router = APIRouter()
 
-#Input Model for Registration and Login
 class AuthIn(BaseModel):
     email : EmailStr
     password : str
@@ -16,7 +15,6 @@ class AuthRegister(BaseModel):
     password : str
     confirm_password : str
 
-#Response Model for Token
 class TokenOut(BaseModel):
     access_token : str
     token_type : str = "bearer"
@@ -24,7 +22,10 @@ class TokenOut(BaseModel):
 class MessageOut(BaseModel):
     message: str
 
-#Router for Registration
+class OTPVerifyIn(BaseModel):
+    email: EmailStr
+    otp: str
+
 @router.post("/register", response_model=MessageOut, status_code=status.HTTP_201_CREATED)
 def register(payload: AuthRegister):
     users = db.users
@@ -39,29 +40,28 @@ def register(payload: AuthRegister):
     if payload.password != payload.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
     
-    token = secrets.token_urlsafe(32)
+    otp = generate_otp()
 
     pending.insert_one({
         "email": payload.email,
         "username": payload.username,
         "hashed_password": hash_password(payload.password),
-        "verification_token": token,
-        "expires_at": int(time.time()) + 3600
+        "otp": otp,
+        "expires_at": int(time.time()) + 600
     })
 
-    send_verification_email(payload.email, token)
+    send_verification_email(payload.email, otp)
     
     return {
         "message": "Verification email Sent"
     }
 
-#Router for Verification
-@router.get("/verify")
-def verify_email(token: str = Query(...)):
+@router.post("/verify")
+def verify_email(payload : OTPVerifyIn):
     users = db.users
     pending = db.pending_users
 
-    record = pending.find_one({"verification_token": token})
+    record = pending.find_one({"email": payload.email, "otp": payload.otp})
 
     if not record:
         raise HTTPException(400, "Invalid or expired verification Link")
@@ -82,7 +82,6 @@ def verify_email(token: str = Query(...)):
         "message": "Email successfully verified. Please Log in"
     }
 
-#Router for Login
 @router.post("/login", response_model=TokenOut)
 def login(payload: AuthIn):
     users = db.users

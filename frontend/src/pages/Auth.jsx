@@ -12,12 +12,26 @@ export default function Auth() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword]= useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
 	const location = useLocation();
 	const params = new URLSearchParams(location.search);
 	const returnUrl = params.get("returnUrl") || "/";
-
 	const navigate = useNavigate();
+
+  const validatePassword = (pass) => {
+    const minLength = 7;
+    const hasNumber = /\d/.test(pass);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pass);
+    const hasUppercase = /[A-Z]/.test(pass);
+
+    if(pass.length < minLength) return "Password must be at least 7 characters long";
+    if(!hasNumber) return "Password must contain at least one number";
+    if(!hasSpecialChar) return "Password must contain at least one special character";
+    if(!hasUppercase) return "Password must contain at least one upper case character";
+    
+    return "";
+  }
 
 	async function handleLogin(e) {
 		e.preventDefault();
@@ -48,6 +62,13 @@ export default function Auth() {
 			alert("Passwords do not match");
 			return;
 		}
+    
+    const validationMessage = validatePassword(password);
+    if(validationMessage){
+      setPasswordError(validationMessage);
+      return;
+    }
+    setPassword("");
 
 		const payload = {
 			email,
@@ -65,8 +86,9 @@ export default function Auth() {
 		const data = await res.json();
 
 		if (res.ok) {
-			alert("Verification Email Sent. Please check your inbox");
+			alert("Verification OTP Sent. Please check your inbox");
 			setIsSignUp(false);
+      
 		} else {
 			alert("Signup failed: " + data.detail);
 		}
@@ -131,7 +153,10 @@ export default function Auth() {
 								type={showPassword? "text" : "password"}
 								placeholder="Password"
 								className="mb-4 px-4 py-3 border rounded-lg w-full pr-12"
-								onChange={(e) => setPassword(e.target.value)}
+								onChange={(e) => {
+                  setPassword(e.target.value);
+                  if(passwordError) setPasswordError("");
+                }}
 								required
 							/>
 							<button type="button"
@@ -154,6 +179,7 @@ export default function Auth() {
 								{showConfirmPassword? <FaEyeSlash size={20}/>: <FaEye size={20}/>}
 							</button>
 							</div>
+              {passwordError && <p className="text-red-500 text-xs mb-2">{passwordError}</p>}
 							<button className="bg-green-600 w-full text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
 								Sign Up
 							</button>

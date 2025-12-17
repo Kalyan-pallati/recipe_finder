@@ -3,7 +3,7 @@ export async function fetchWithAuth(url, options = {}) {
 
     if(!token) {
         const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-         window.location.href = `/auth?returnUrl=${returnUrl}`;
+         window.location.href = `/login?returnUrl=${returnUrl}`;
     }
     const headers = {
         ...(options.headers || {}),
@@ -20,7 +20,7 @@ export async function fetchWithAuth(url, options = {}) {
 
         localStorage.removeItem("token");
 
-        window.location.href = `/auth?returnUrl=${encoded}`;
+        window.location.href = `/login?returnUrl=${encoded}`;
 
         throw new Error("Session Expired. Logged Out");
     }
