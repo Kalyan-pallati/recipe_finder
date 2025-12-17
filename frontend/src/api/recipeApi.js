@@ -1,5 +1,6 @@
 export async function searchRecipes(query, page = 1, perPage = 12, filters = {}) {
-  // Build params
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
   const params = new URLSearchParams();
   if (query) params.append("q", query);
   params.append("page", String(page));
@@ -7,7 +8,6 @@ export async function searchRecipes(query, page = 1, perPage = 12, filters = {})
 
   Object.entries(filters).forEach(([k, v]) => {
     if (v === null || v === undefined) return;
-    // arrays -> comma-separated
     if (Array.isArray(v)) {
       if (v.length) params.append(k, v.join(","));
       return;
@@ -16,7 +16,7 @@ export async function searchRecipes(query, page = 1, perPage = 12, filters = {})
     params.append(k, String(v));
   });
 
-  const url = `http://localhost:8000/api/recipes/search?${params.toString()}`;
+  const url = `${API_URL}/api/recipes/search?${params.toString()}`;
   const res = await fetch(url);
   if (!res.ok) {
     const errBody = await res.text().catch(()=>"");
