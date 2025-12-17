@@ -67,7 +67,7 @@ def get_current_user(credentials = Depends(auth_scheme)):
 
     return user
 
-def send_verification_email(to_email: str, otp: str):
+async def send_verification_email(to_email: str, otp: str):
 
     msg = EmailMessage()
     msg["Subject"] = "Verification Code"
@@ -88,6 +88,6 @@ This link will expire in 10 minutes,
 If you didn't create this account, ignore this email
                     """)
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.send_message(msg)
+        await server.starttls()
+        await server.login(SMTP_EMAIL, SMTP_PASSWORD)
+        await server.send_message(msg)

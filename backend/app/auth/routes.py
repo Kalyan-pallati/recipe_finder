@@ -27,7 +27,7 @@ class OTPVerifyIn(BaseModel):
     otp: str
 
 @router.post("/register", response_model=MessageOut, status_code=status.HTTP_201_CREATED)
-def register(payload: AuthRegister):
+async def register(payload: AuthRegister):
     users = db.users
     pending = db.pending_users
 
@@ -43,7 +43,7 @@ def register(payload: AuthRegister):
     otp = generate_otp()
 
     send_verification_email(payload.email, otp)
-    
+
     pending.insert_one({
         "email": payload.email,
         "username": payload.username,
@@ -57,7 +57,7 @@ def register(payload: AuthRegister):
     }
 
 @router.post("/verify")
-def verify_email(payload : OTPVerifyIn):
+async def verify_email(payload : OTPVerifyIn):
     users = db.users
     pending = db.pending_users
 
@@ -83,7 +83,7 @@ def verify_email(payload : OTPVerifyIn):
     }
 
 @router.post("/login", response_model=TokenOut)
-def login(payload: AuthIn):
+async def login(payload: AuthIn):
     users = db.users
     user = users.find_one({"email": payload.email})
 
