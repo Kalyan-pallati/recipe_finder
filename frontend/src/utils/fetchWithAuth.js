@@ -21,7 +21,7 @@ export async function fetchWithAuth(url, options = {}) {
         localStorage.removeItem("token");
 
         window.location.href = `/login?returnUrl=${encoded}`;
-
+        
         throw new Error("Session Expired. Logged Out");
     }
     return res;

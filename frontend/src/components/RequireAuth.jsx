@@ -6,7 +6,7 @@ export default function RequireAuth({children}) {
 
     if(!token){
         const returnUrl = encodeURIComponent(location.pathname + location.search);
-        return <Navigate to={`/auth?returnUrl=${returnUrl}`} replace />;
+        return <Navigate to={`/login?returnUrl=${returnUrl}`} replace />;
     }
     return children;
 }
