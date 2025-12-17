@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function Saved() {
+
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -15,7 +18,7 @@ export default function Saved() {
     setLoading(true);
 
     const res = await fetchWithAuth(
-      `http://localhost:8000/api/recipes/saved?page=${page}&per_page=${perPage}`
+      `${API_URL}/api/recipes/saved?page=${page}&per_page=${perPage}`
     );
 
     const data = await res.json();
@@ -26,7 +29,7 @@ export default function Saved() {
 
   async function handleUnsave(recipeId, source_type) {
     const res = await fetchWithAuth(
-      `http://localhost:8000/api/recipes/unsave/${recipeId}?source_type=${source_type}`,
+      `${API_URL}/api/recipes/unsave/${recipeId}?source_type=${source_type}`,
       { method: "DELETE" }
     );
 

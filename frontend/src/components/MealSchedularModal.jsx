@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithAuth } from '../utils/fetchWithAuth';
-
-const MEAL_PLANS_URL = "http://localhost:8000/api/meal";
-const SAVED_RECIPES_URL = "http://localhost:8000/api/recipes/saved?per_page=100"; 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+const MEAL_PLANS_URL = `${API_URL}/api/meal`;
+const SAVED_RECIPES_URL = `${API_URL}/api/recipes/saved?per_page=100`; 
 
 export default function MealSchedulerModal({ date, type, onClose, onMealAdded }) {
-    
+  
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [loadingRecipes, setLoadingRecipes] = useState(true);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -19,7 +19,7 @@ export default function MealSchedulerModal({ date, type, onClose, onMealAdded })
             try {
                 const [savedResults, myResults] = await Promise.all([
                     fetchWithAuth(SAVED_RECIPES_URL),
-                    fetchWithAuth("http://localhost:8000/api/my-recipes/")
+                    fetchWithAuth(`${API_URL}/api/my-recipes/`)
                 ]);
                 const savedData = await savedResults.json();
                 const myData = await myResults.json();

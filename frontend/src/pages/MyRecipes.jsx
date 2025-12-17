@@ -9,10 +9,11 @@ export default function MyRecipes() {
   const [open, setOpen] = useState(false);
   const [editRecipe, setOpenEdit] = useState(null);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   async function fetchMyRecipes() {
     setLoading(true);
-    const res = await fetchWithAuth("http://localhost:8000/api/my-recipes/");
+    const res = await fetchWithAuth(`${API_URL}/api/my-recipes/`);
     const data = await res.json();
     setRecipes(data || []);
     setLoading(false);
@@ -25,7 +26,7 @@ export default function MyRecipes() {
   async function handleCreateRecipe(formData) {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:8000/api/my-recipes/", {
+    const res = await fetch(`${API_URL}/api/my-recipes/`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -45,7 +46,7 @@ export default function MyRecipes() {
 
     try {
       const res = await fetchWithAuth(
-        `http://localhost:8000/api/my-recipes/${recipe_id}`,
+        `${API_URL}/api/my-recipes/${recipe_id}`,
         { method: "DELETE" }
       );
 

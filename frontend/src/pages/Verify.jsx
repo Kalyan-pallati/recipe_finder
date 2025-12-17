@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Verify() {
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
+
     const [params] = useSearchParams();
     const navigate = useNavigate();
 
@@ -14,7 +16,7 @@ export default function Verify() {
             return;
             }
             try{
-                const res = await fetch(`http://localhost:8000/api/auth/verify?token=${token}`);
+                const res = await fetch(`${API_URL}/api/auth/verify?token=${token}`);
                 const data = await res.json();
 
                 if(!res.ok){

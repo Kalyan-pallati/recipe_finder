@@ -5,6 +5,9 @@ import { fetchWithAuth } from "../utils/fetchWithAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function Recipe() {
+
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
+
     const { id } = useParams(); 
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -29,7 +32,7 @@ export default function Recipe() {
         );
 
         try {
-            const res = await fetchWithAuth("http://localhost:8000/api/recipes/save",
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/save`,
                 {
                     method: "POST",
                     headers: {
@@ -58,7 +61,7 @@ export default function Recipe() {
         const sourceType = "spoonacular"; 
         
         const res = await fetchWithAuth(
-            `http://localhost:8000/api/recipes/unsave/${String(recipe.id)}?source_type=${sourceType}`, 
+            `${API_URL}/api/recipes/unsave/${String(recipe.id)}?source_type=${sourceType}`, 
             {
                 method: "DELETE",
                 headers: {
@@ -77,7 +80,7 @@ export default function Recipe() {
     useEffect(() => {
         async function fetchRecipeDetails() {
             try {
-                const res = await fetch(`http://localhost:8000/api/recipes/${id}`); 
+                const res = await fetch(`${API_URL}/api/recipes/${id}`); 
                 if (!res.ok) throw new Error("Recipe not found");
                 const data = await res.json();
                 setRecipe(data);
@@ -95,7 +98,7 @@ export default function Recipe() {
 
             try {
                 const res = await fetchWithAuth(
-                    `http://localhost:8000/api/recipes/is-saved/${id}`,{ 
+                    `${API_URL}/api/recipes/is-saved/${id}`,{ 
                         headers: {
                          "Authorization": `Bearer ${token}`,},
                 });

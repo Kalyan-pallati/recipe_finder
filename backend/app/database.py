@@ -1,4 +1,12 @@
+import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
-client = MongoClient("mongodb://localhost:27017/")
+load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+
+# client = MongoClient("mongodb://localhost:27017/")
+# db = client["recipefinder"]
+
+client = MongoClient(MONGO_URI)
 db = client["recipefinder"]

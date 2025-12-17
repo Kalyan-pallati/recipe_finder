@@ -5,6 +5,7 @@ import EditRecipeModal from "../components/EditRecipeModal";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function MyRecipePage() {
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ export default function MyRecipePage() {
     async function fetchRecipe() {
         try {
             const res = await fetchWithAuth(
-                `http://localhost:8000/api/my-recipes/${id}`
+                `${API_URL}/api/my-recipes/${id}`
             );
             if (!res.ok) throw new Error("Recipe Not Found");
 
@@ -40,7 +41,7 @@ export default function MyRecipePage() {
         if (!confirm("Are you sure you want to delete this recipe?")) return;
 
         const res = await fetchWithAuth(
-            `http://localhost:8000/api/my-recipes/${id}`,
+            `${API_URL}/api/my-recipes/${id}`,
             { method: "DELETE" }
         );
 
@@ -55,7 +56,7 @@ export default function MyRecipePage() {
         const token = localStorage.getItem("token");
         
         const res = await fetch(
-            `http://localhost:8000/api/my-recipes/${id}`,
+            `${API_URL}/api/my-recipes/${id}`,
             {
                 method: "PUT",
                 body: formData,

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function CommunityRecipes() {
+
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -16,7 +19,7 @@ export default function CommunityRecipes() {
         async function loadSaved() {
             const token = localStorage.getItem("token");
             if (!token) return;
-            const res = await fetchWithAuth("http://localhost:8000/api/recipes/saved_recipes", { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes`, { headers: { Authorization: `Bearer ${token}` } });
             const data = await res.json()
             console.log(data);
             if (res.ok) {
@@ -34,7 +37,7 @@ export default function CommunityRecipes() {
     // console.log(recipe.image);
     // console.log(recipe.readyInMinutes)
     // console.log(recipe.calories)
-    const res = await fetchWithAuth("http://localhost:8000/api/recipes/save", {
+    const res = await fetchWithAuth(`${API_URL}/api/recipes/save/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +61,7 @@ export default function CommunityRecipes() {
     const token = localStorage.getItem("token");
 
     const source_type = "community";
-    const res = await fetchWithAuth(`http://localhost:8000/api/recipes/unsave/${String(recipeId)}?source_type=${source_type}`, {
+    const res = await fetchWithAuth(`${API_URL}/api/recipes/unsave/${String(recipeId)}?source_type=${source_type}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -70,7 +73,7 @@ export default function CommunityRecipes() {
     setLoading(true);
 
     const res = await fetchWithAuth(
-      `http://localhost:8000/api/my-recipes/community?page=${page}&per_page=${perPage}`
+      `${API_URL}/api/my-recipes/community?page=${page}&per_page=${perPage}`
     );
 
     const data = await res.json();

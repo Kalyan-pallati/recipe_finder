@@ -4,15 +4,17 @@ import { jwtDecode } from "jwt-decode";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Auth() {
-	const [isSignUp, setIsSignUp] = useState(false);
 
+	const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+	const [isSignUp, setIsSignUp] = useState(false);
 	const [email, setEmail] = useState("");
 	const [username, setUsername] = useState(""); 
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword]= useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
+  	const [passwordError, setPasswordError] = useState("");
 
 	const location = useLocation();
 	const params = new URLSearchParams(location.search);
@@ -36,7 +38,7 @@ export default function Auth() {
 	async function handleLogin(e) {
 		e.preventDefault();
 
-		const res = await fetch("http://localhost:8000/api/auth/login", {
+		const res = await fetch(`${API_URL}api/auth/login`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email, password }),

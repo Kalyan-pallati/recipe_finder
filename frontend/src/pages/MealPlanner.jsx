@@ -4,7 +4,8 @@ import { fetchWithAuth } from '../utils/fetchWithAuth';
 import MealSchedulerModal from '../components/MealSchedularModal'
 import { useNavigate } from 'react-router-dom';
 
-const MEAL_PLANS_URL = "http://localhost:8000/api/meal"; 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+const MEAL_PLANS_URL = `${API_URL}/api/meal`; 
 
 const organizePlan = (meals) => {
     return meals.reduce((acc, meal) => {

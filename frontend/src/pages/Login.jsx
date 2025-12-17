@@ -4,6 +4,9 @@ import { jwtDecode } from "jwt-decode";
 import { FaEye, FaEyeSlash, FaUtensils, FaClock, FaHeart } from "react-icons/fa";
 
 export default function Login() {
+
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);

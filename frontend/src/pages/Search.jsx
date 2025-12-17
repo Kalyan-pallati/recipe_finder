@@ -4,6 +4,9 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function Search() {
+
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
+
     const [params] = useSearchParams();
     const navigate = useNavigate();
     const initialQuery = params.get("q") || "";
@@ -35,7 +38,7 @@ export default function Search() {
             const token = localStorage.getItem("token");
             if (!token) return;
 
-            const res = await fetchWithAuth("http://localhost:8000/api/recipes/saved_recipes", { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes`, { headers: { Authorization: `Bearer ${token}` } });
             
             const data = await res.json()
             if (res.ok) {
@@ -114,7 +117,7 @@ export default function Search() {
         e.stopPropagation();
         const token = localStorage.getItem("token");
 
-        const res = await fetchWithAuth("http://localhost:8000/api/recipes/save", {
+        const res = await fetchWithAuth(`${API_URL}/api/recipes/save`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -138,7 +141,7 @@ export default function Search() {
         const token = localStorage.getItem("token");
 
         const source_type = "spoonacular";
-        const res = await fetchWithAuth(`http://localhost:8000/api/recipes/unsave/${recipeId}?source_type=${source_type}`, {
+        const res = await fetchWithAuth(`${API_URL}/api/recipes/unsave/${recipeId}?source_type=${source_type}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
         });

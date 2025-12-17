@@ -3,6 +3,9 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaCheck } from "react-icons/fa";
 
 export default function SignUp() {
+
+    const API_URL = import.meta.env.VITE_API_BASE_URL;
+
     const [isVerifying, setIsVerifying] = useState(false);
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
@@ -38,7 +41,7 @@ export default function SignUp() {
         if (validationMessage) { setPasswordError(validationMessage); return; }
         setPasswordError("");
         try {
-            const res = await fetch("http://localhost:8000/api/auth/register", {
+            const res = await fetch(`${API_URL}/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, username, password, confirm_password: confirmPassword }),
@@ -57,7 +60,7 @@ export default function SignUp() {
     async function handleVerifyOTP(e) {
         e.preventDefault();
         try {
-            const res = await fetch("http://localhost:8000/api/auth/verify", {
+            const res = await fetch(`${API_URL}/api/auth/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, otp }),
