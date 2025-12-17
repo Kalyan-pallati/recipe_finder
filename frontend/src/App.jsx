@@ -30,9 +30,8 @@ function App() {
           <Route path="/saved" element={ <RequireAuth><Saved /></RequireAuth>} />
           <Route path="/recipe/:id" element={<Recipe />} />
           <Route path="/verify" element={<Verify />}></Route>
+          <Route path="/auth" element={<Auth />} />
         </Route>
-
-        <Route path="/auth" element={<Auth />} />
       </Routes>
     </Router>
   )

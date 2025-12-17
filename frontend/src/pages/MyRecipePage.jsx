@@ -87,10 +87,8 @@ export default function MyRecipePage() {
     
     return (
         <div className="min-h-screen bg-gray-50 px-4 sm:px-6 py-12">
-            {/* TOP SECTION */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-gray-100">
 
-                {/* LEFT - TEXT & STATS */}
                 <div>
                     <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-snug mb-4">
                         {recipe.title}
@@ -139,7 +137,7 @@ export default function MyRecipePage() {
                     </div>
 
                     <p className="text-gray-700 text-lg mt-8">
-                        This recipe was shared by a community member. Please feel free to edit it if you have improvements!
+                        This recipe was shared by a community member.
                     </p>
                 </div>
 

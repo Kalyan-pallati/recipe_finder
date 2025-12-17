@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 const MEAL_PLANS_URL = "http://localhost:8000/api/meal";
-// Fetch a reasonable number of saved recipes for the modal selector
 const SAVED_RECIPES_URL = "http://localhost:8000/api/recipes/saved?per_page=100"; 
 
 export default function MealSchedulerModal({ date, type, onClose, onMealAdded }) {
@@ -13,25 +12,29 @@ export default function MealSchedulerModal({ date, type, onClose, onMealAdded })
     const [scheduling, setScheduling] = useState(false);
     const [error, setError] = useState(null);
 
-    // --- Data Fetching: Load Saved Recipes ---
     useEffect(() => {
-        const loadSavedRecipes = async () => {
+        async function loadSavedRecipes() {
             setLoadingRecipes(true);
             const token = localStorage.getItem("token");
-            if (!token) return;
-
             try {
-                const res = await fetchWithAuth(SAVED_RECIPES_URL, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                
-                const data = await res.json();
-                if (res.ok) {
-                    // Saved recipes already have the necessary source_type field
-                    setSavedRecipes(data.results || []); 
-                } else {
-                    throw new Error(data.detail || "Failed to load saved recipes.");
+                const [savedResults, myResults] = await Promise.all([
+                    fetchWithAuth(SAVED_RECIPES_URL),
+                    fetchWithAuth("http://localhost:8000/api/my-recipes/")
+                ]);
+                const savedData = await savedResults.json();
+                const myData = await myResults.json();
+
+                if (!savedResults.ok) {
+                    throw new Error(savedData.detail || "Failed to load saved recipes");
                 }
+                if (!myResults.ok) {
+                    throw new Error(myData.detail || "Failed to load my recipes");
+                }
+                setSavedRecipes([
+                    ...(savedData.results || []),
+                    ...myData
+                ]);
+
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -41,8 +44,7 @@ export default function MealSchedulerModal({ date, type, onClose, onMealAdded })
         loadSavedRecipes();
     }, []);
 
-    // --- Scheduling Handler (POST /meal-plans) ---
-    const handleSchedule = async () => {
+    async function handleSchedule(){
         if (!selectedRecipe) {
             setError("Please select a recipe.");
             return;

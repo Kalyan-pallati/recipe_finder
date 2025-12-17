@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getFloatingWeekDays, dayNames, mealTypes, formatDate } from '../utils/dateUtils'
 import { fetchWithAuth } from '../utils/fetchWithAuth'; 
-import MealSchedulerModal from '../components/MealSchedularModal';
+import MealSchedulerModal from '../components/MealSchedularModal'
+import { useNavigate } from 'react-router-dom';
 
 const MEAL_PLANS_URL = "http://localhost:8000/api/meal"; 
 
@@ -22,11 +23,11 @@ export default function MealPlanner() {
     const [weeklyPlan, setWeeklyPlan] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    
+    const navigate = useNavigate();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [mealSlot, setMealSlot] = useState({ date: '', type: '' });
 
-    // Calculate the 7-day floating window based on currentDate
     const weekDays = getFloatingWeekDays(currentDate);
 
     const startDateAPI = weekDays[0];
@@ -64,7 +65,17 @@ export default function MealPlanner() {
         }
     }
 
-    async function handleDeleteMeal(mealId) {
+    async function handleClick(source_id, source_type) {
+        if(source_type === "spoonacular"){
+            navigate(`/recipe/${source_id}`);
+        }
+        else if(source_type === "community"){
+            navigate(`/my-recipes/${source_id}`)
+        }
+    }
+
+    async function handleDeleteMeal(e, mealId) {
+        e.stopPropagation();
         if (!window.confirm("Are you sure you want to remove this meal?")) return;
 
         const token = localStorage.getItem("token");
@@ -120,7 +131,7 @@ export default function MealPlanner() {
                     onClick={() => changeWeek('prev')}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition duration-150"
                 >
-                    &larr; Prev Week
+                    &larr; Prev Week 
                 </button>
                 <h2 className="text-xl font-semibold">
                     {startDateAPI} — {endDateAPI}
@@ -158,14 +169,15 @@ export default function MealPlanner() {
                                     {mealTypes.map(type => {
                                         const meal = weeklyPlan[date] && weeklyPlan[date][type];
                                         return (
-                                            <td key={type} className="p-2 align-top h-28 border-l border-r">
+                                            <td key={type} className="p-2 align-top border-l border-r">
                                                 {meal ? (
                                                     <div className="p-2 bg-green-100 rounded-lg text-sm relative group transition duration-100 hover:bg-green-200">
-                                                        <p className="font-bold truncate text-gray-800">{meal.title}</p>
+                                                        <p onClick={() => handleClick(meal.source_id, meal.source_type)}
+                                                        className="font-bold text-gray-800 break-words">{meal.title}</p> 
                                                         <p className="text-xs text-green-700 truncate">{meal.source_type.toUpperCase()}</p>
                                                         
                                                         <button 
-                                                            onClick={() => handleDeleteMeal(meal.id)}
+                                                            onClick={(e) => handleDeleteMeal(e, meal.id)}
                                                             className="absolute top-1 right-1 p-1 text-md text-red-500 hover:text-red-700 transition duration-150"
                                                         >
                                                             &times;
@@ -174,7 +186,7 @@ export default function MealPlanner() {
                                                 ) : (
                                                     <button 
                                                         onClick={() => handleOpenModal(date, type)}
-                                                        className="w-full h-full p-2 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-600 transition duration-150"
+                                                        className="w-full h-full min-h-[7rem] p-2 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-600 transition duration-150"
                                                     >
                                                         + Add Meal
                                                     </button>
@@ -194,7 +206,7 @@ export default function MealPlanner() {
                     date={mealSlot.date} 
                     type={mealSlot.type} 
                     onClose={() => setIsModalOpen(false)}
-                    onMealAdded={fetchPlan} // Pass the dynamically defined fetchPlan
+                    onMealAdded={fetchPlan}
                 />
             )}
 

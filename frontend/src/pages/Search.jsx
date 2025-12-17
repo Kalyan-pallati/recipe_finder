@@ -85,6 +85,7 @@ export default function Search() {
     }
 
     useEffect(() => {
+        window.scroll(0,0);
         if (initialQuery) doSearch(1);
         else {
             setRecipes([]);
