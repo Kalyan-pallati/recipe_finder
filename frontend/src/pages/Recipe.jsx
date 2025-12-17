@@ -5,6 +5,8 @@ import { fetchWithAuth } from "../utils/fetchWithAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function Recipe() {
+    const token = localStorage.getItem("token");
+    const sourceType = "spoonacular";
 
     const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -57,8 +59,7 @@ export default function Recipe() {
     }
 
     async function handleUnsaveRecipe() {
-        const token = localStorage.getItem("token");
-        const sourceType = "spoonacular"; 
+ 
         
         const res = await fetchWithAuth(
             `${API_URL}/api/recipes/unsave/${String(recipe.id)}?source_type=${sourceType}`, 
@@ -88,7 +89,6 @@ export default function Recipe() {
                 setRecipe(null);
             } finally {
                 setLoading(false);
-                console.log(recipe);
             }
         }
 
