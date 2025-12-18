@@ -6,12 +6,10 @@ export default function SignUp() {
 
     const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-    // const [isVerifying, setIsVerifying] = useState(false);
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    // const [otp, setOtp] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [passwordError, setPasswordError] = useState("");
@@ -58,24 +56,6 @@ export default function SignUp() {
         }
     }
 
-    // async function handleVerifyOTP(e) {
-    //     e.preventDefault();
-    //     try {
-    //         const res = await fetch(`${API_URL}/api/auth/verify`, {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify({ email, otp }),
-    //         });
-    //         if (res.ok) { 
-    //             navigate(`/login?returnUrl=${encodeURIComponent(returnUrl)}`); 
-    //         } else { 
-    //             const data = await res.json(); alert(data.detail); 
-    //         }
-    //     } catch (err) { 
-    //         alert("Verification error."); 
-    //     }
-    // }
-
     return (
         <div className="min-h-screen flex flex-col md:flex-row bg-white">
             <div className="w-full md:w-[50%] bg-red-800 text-white p-12 flex flex-col justify-center">
@@ -116,7 +96,6 @@ export default function SignUp() {
                 </div>
 
                 <div className="max-w-[440px] mx-auto w-full flex-1 flex flex-col justify-center">
-                    {/* {!isVerifying ? ( */}
                         <form onSubmit={handleSignup} className="animate-fadeIn">
                             <h2 className="text-2xl font-semibold mb-8 text-gray-900">Sign up for RecipeApp</h2>
                             
@@ -159,18 +138,6 @@ export default function SignUp() {
                                 <button className="w-full bg-[#2da44e] text-white py-2.5 rounded-md font-bold hover:bg-[#2c974b] transition shadow-sm mt-4">Create account</button>
                             </div>
                         </form>
-                    {/* ) : (
-                        <form onSubmit={handleVerifyOTP} className="animate-fadeIn">
-                            <h2 className="text-2xl font-semibold mb-2 text-gray-900">Verify your email</h2>
-                            <p className="text-gray-600 mb-8 text-sm">Enter the code sent to <span className="font-bold text-gray-900">{email}</span></p>
-                            
-                            <div className="space-y-6">
-                                <input type="text" maxLength="6" placeholder="000000" value={otp} onChange={(e) => setOtp(e.target.value)} className="w-full px-4 py-3 bg-[#f6f8fa] border border-gray-300 rounded-md text-center text-3xl tracking-[0.75rem] font-mono focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition" required />
-                                <button className="w-full bg-[#2da44e] text-white py-2.5 rounded-md font-bold hover:bg-[#2c974b] transition">Verify OTP</button>
-                                <button type="button" onClick={() => setIsVerifying(false)} className="w-full text-sm text-blue-600 hover:underline text-center">Edit account details</button>
-                            </div>
-                        </form>
-                    )} */}
                 </div>
             </div>
         </div>
