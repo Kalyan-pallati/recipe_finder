@@ -26,6 +26,7 @@ export default function MyRecipes() {
   async function handleCreateRecipe(formData) {
     const token = localStorage.getItem("token");
 
+    console.log(formData);
     const res = await fetch(`${API_URL}/api/my-recipes/`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -78,8 +79,8 @@ export default function MyRecipes() {
 
           {recipes.map(r => (
             <article
-              key={r.id}
-              onClick={() => navigate(`/my-recipes/${r.id}`)}
+              key={r.recipe_id}
+              onClick={() => navigate(`/my-recipes/${r.recipe_id}`)}
               className="
                 relative bg-white rounded-lg overflow-hidden shadow
                 transition-all duration-300 cursor-pointer group
@@ -113,7 +114,7 @@ export default function MyRecipes() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/my-recipes/${r.id}`);
+                        navigate(`/my-recipes/${r.recipe_id}`);
                       }}
                       className="
                         text-sm px-3 py-1 rounded transition
@@ -125,7 +126,7 @@ export default function MyRecipes() {
                     </button>
 
                     <button
-                      onClick={(e) => handleDeleteRecipe(e, r.id)}
+                      onClick={(e) => handleDeleteRecipe(e, r.recipe_id)}
                       className="
                         text-sm px-3 py-1 rounded transition
                         bg-red-500 text-white

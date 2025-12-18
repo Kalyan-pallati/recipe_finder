@@ -21,7 +21,7 @@ export default function CommunityRecipes() {
             if (!token) return;
             const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes`, { headers: { Authorization: `Bearer ${token}` } });
             const data = await res.json()
-            console.log(data);
+            console.log(data.saved_ids, typeof data.saved_ids[0]);
             if (res.ok) {
                 setSavedIds(data.saved_ids.map(id => String(id)));
             }
@@ -44,7 +44,7 @@ export default function CommunityRecipes() {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        recipe_id: String(recipe.id),
+        recipe_id: String(recipe.recipe_id),
         source_type: "community",
         title: recipe.title,
         image: recipe.image,
@@ -53,7 +53,7 @@ export default function CommunityRecipes() {
       }),
     });
 
-    if (res.ok) setSavedIds((prev) => [...prev, String(recipe.id)]);
+    if (res.ok) setSavedIds((prev) => [...prev, String(recipe.recipe_id)]);
   }
 
   async function handleUnsave(e, recipeId) {
@@ -105,8 +105,8 @@ export default function CommunityRecipes() {
 
             {recipes.map((r) => (
               <article
-                key={r.id}
-                onClick={() => navigate(`/my-recipes/${r.id}`)}
+                key={r.recipe_id}
+                onClick={() => navigate(`/my-recipes/${r.recipe_id}`)}
                 className="
                   relative bg-white rounded-lg overflow-hidden shadow 
                   transition-all duration-300 cursor-pointer group
@@ -150,9 +150,9 @@ export default function CommunityRecipes() {
                       >
                         View
                       </button>
-                      {savedIds.includes(r.id) ? (
+                      {savedIds.includes(r.recipe_id) ? (
                         <button
-                        onClick={(e) => handleUnsave(e, r.id)}
+                        onClick={(e) => handleUnsave(e, r.recipe_id)}
                         className="
                         text-sm bg-red-500 text-white px-3 py-1 rounded 
                         transition group-hover:bg-white group-hover:text-red-600">

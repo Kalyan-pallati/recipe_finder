@@ -30,11 +30,15 @@ export default function MealSchedulerModal({ date, type, onClose, onMealAdded })
                 if (!myResults.ok) {
                     throw new Error(myData.detail || "Failed to load my recipes");
                 }
-                setSavedRecipes([
+                const combined = [
                     ...(savedData.results || []),
                     ...myData
-                ]);
-
+                ];
+                console.log(combined);
+                const unique = Array.from(
+                    new Map(combined.map(r => [r.recipe_id, r])).values()
+                );
+                setSavedRecipes(unique);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -56,7 +60,7 @@ export default function MealSchedulerModal({ date, type, onClose, onMealAdded })
         console.log(selectedRecipe.source_type);
         const payload = {
             source_id: String(selectedRecipe.recipe_id), 
-            source_type: selectedRecipe.source_type ? 'spoonacular' : 'community',
+            source_type: selectedRecipe.source_type,
             date: typeof date === 'object' ? date.toISOString().split('T')[0] : date,
             meal_type: type,
             title: selectedRecipe.title,

@@ -11,12 +11,6 @@ import smtplib
 import random
 import string
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
-
-SMTP_EMAIL = "pallatikalyansai@gmail.com"
-SMTP_PASSWORD = "cwcr ybqq vpco llwt"
-
 SECRET = os.getenv("SECRET_KEY", "default_secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_SECONDS = 3600  # 1 hour
@@ -67,23 +61,3 @@ def get_current_user(credentials = Depends(auth_scheme)):
 
     return user
 
-def send_verification_email(to_email: str, otp: str):
-    msg = EmailMessage()
-    msg["Subject"] = "Verification Code"
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = to_email
-
-    msg.set_content(f"""
-Hi,
-
-Your verification OTP is:
-
-{otp}
-
-This code expires in 10 minutes.
-""")
-
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.send_message(msg)

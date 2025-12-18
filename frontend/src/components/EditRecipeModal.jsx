@@ -58,6 +58,7 @@ export default function EditRecipeModal({open, setOpen, initialData, onSubmit}) 
         form.append("readyInMinutes", readyInMinutes );
         form.append("servings", servings);
         form.append("calories", calories);
+        form.append("source_type", "community");
         
         if (ingredients.length > 0) {
             form.append("ingredients", JSON.stringify(ingredients));

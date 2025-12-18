@@ -28,14 +28,15 @@ class MyRecipeIn(BaseModel):
     steps: List[Step]
     image: Optional[str] = None
     description: Optional[str] = ""
+    source_type: str
 
 class MyRecipeOut(MyRecipeIn):
-    id: str
+    recipe_id: str
 
 
 def serialize_recipe(doc):
     return {
-        "id": str(doc["_id"]),
+        "recipe_id": str(doc["_id"]),
         "user_id": doc["user_id"],
         "title": doc["title"],
         "readyInMinutes": doc.get("readyInMinutes"),
@@ -44,6 +45,7 @@ def serialize_recipe(doc):
         "ingredients": doc.get("ingredients", []),
         "steps": doc.get("steps", []),
         "image": doc.get("image"),
+        "source_type": doc["source_type"],
     }
 
 
@@ -54,26 +56,24 @@ async def create_recipe(
     readyInMinutes: Optional[int] = Form(None),
     servings: Optional[int] = Form(None),
     calories: Optional[float] = Form(None),
+    source_type: str = Form(...),
     ingredients: str = Form(...),
     steps: str = Form(...),
-    image: Optional[UploadFile] = File(None)
+    image: Optional[UploadFile] = File(None),
 ):
     user_id = str(user["_id"])
 
-    # Parse ingredient + step JSON
     try:
         ingredients_data = json.loads(ingredients)
         steps_data = json.loads(steps)
     except:
         raise HTTPException(400, "Invalid JSON for ingredients or steps")
 
-    # Upload image to Cloudinary
     image_url = None
     if image:
         contents = await image.read()
         image_url = upload_image(contents)
 
-    # Build recipe object
     recipe = {
         "user_id": user_id,
         "title": title,
@@ -83,6 +83,7 @@ async def create_recipe(
         "ingredients": ingredients_data,
         "steps": steps_data,
         "image": image_url,
+        "source_type":source_type,
     }
 
     result = db.my_recipes.insert_one(recipe)
@@ -144,6 +145,7 @@ async def update_recipe(
     steps: str = Form(...),
     image: Optional[UploadFile] = File(None),
     user: dict = Depends(get_current_user),
+    source_type: str = Form(...),
 ):
     doc = db.my_recipes.find_one({"_id":ObjectId(recipe_id)})
 
@@ -173,6 +175,7 @@ async def update_recipe(
         "ingredients": ingredients_data,
         "steps": steps_data,
         "image": image_url,
+        "source_type":source_type
     }
 
     db.my_recipes.update_one({"_id": ObjectId(recipe_id)}, {"$set": update_data})
