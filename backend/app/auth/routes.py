@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Query
 from pydantic import BaseModel, EmailStr
 import secrets, time
 from app.database import db
-from app.auth.utils import hash_password, verify_password, create_access_token, send_verification_email, generate_otp
+from app.auth.utils import hash_password, verify_password, create_access_token
 
 router = APIRouter()
 
