@@ -10,6 +10,7 @@ class AuthIn(BaseModel):
     email : EmailStr
     password : str
 class AuthRegister(BaseModel):
+    name: str
     email : EmailStr
     username: str
     password : str
@@ -53,6 +54,7 @@ async def register(payload: AuthRegister):
     # send_verification_email(payload.email, otp)
 
     result = users.insert_one({
+        "name": payload.name,
         "email": payload.email,
         "username": payload.username,
         "hashed_password": hash_password(payload.password),

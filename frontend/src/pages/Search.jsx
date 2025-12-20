@@ -156,7 +156,7 @@ export default function Search() {
             headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (res.ok) setSavedIds((prev) => prev.filter((id) => id !== recipeId));
+        if (res.ok) setSavedIds((prev) => prev.filter((id) => id !== String(recipeId)));
     }
 
     return (
@@ -357,4 +357,4 @@ export default function Search() {
             </div>
         </div>
     );
-}
+} 
