@@ -9,14 +9,94 @@ export default function MyRecipePage() {
     const API_URL = import.meta.env.VITE_API_BASE_URL;
     const { id } = useParams();
     const navigate = useNavigate();
+    const sourceType = "community";
 
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isSaved, setIsSaved] = useState(false);
 
     const [showMealModal, setShowMealModal] = useState(false);
     const myId = localStorage.getItem("user_id");
 
     const [showEdit, setShowEdit] = useState(false);
+
+    useEffect(() => {
+    async function checkSavedStatus() {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const res = await fetchWithAuth(
+                    `${API_URL}/api/recipes/is-saved/${id}`,{ 
+                        headers: {
+                         "Authorization": `Bearer ${token}`,},
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                setIsSaved(data.saved);
+            } catch (err) {
+                console.error("Error checking saved status:", err);
+            }
+        }
+        if(id && sourceType) fetchRecipe();
+        checkSavedStatus(); 
+        },[id]);
+
+    async function handleSaveRecipe(){
+        const token = localStorage.getItem("token");
+
+        const payload = {
+            recipe_id: String(recipe.recipe_id), 
+            source_type: "community", 
+            title: recipe.title,
+            image: recipe.image,
+            readyInMinutes: recipe.readyInMinutes,
+            calories: recipe.calories 
+        }
+
+        const cleanPayload = Object.fromEntries(
+            Object.entries(payload).filter(([_, v]) => v !== undefined && v !== null)
+        );
+        try{
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/save`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify(cleanPayload),
+            });
+            const data = await res.json();
+            if(res.ok) setIsSaved(true);
+            else{
+                alert(data.detail || "Failed to save recipe");
+            }
+        }
+        catch(err){
+            alert("Error saving recipe");
+            console.log(err);
+        }
+    }
+
+    async function handleUnsaveRecipe() {
+        try{
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/unsave/${String(recipe.id)}?source_type=${sourceType}`, {
+                method: "DELETE",
+                headers: {
+                        "Authorization": `Bearer ${token}`,
+                }
+            });
+            const data = await res.json();
+            if(res.ok()){
+                setIsSaved(false);
+            } else{
+                alert(data.detail || "Failed to unsave recipe")
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
 
     async function handleAddMeal(payload) {
         const token = localStorage.getItem("token");
@@ -137,11 +217,24 @@ export default function MyRecipePage() {
                             </button>
                         </div>
                     )}
-                    <button onClick={() => setShowMealModal(true)}
-                    className="px-5 py-2 bg-blue-600 text-white font-medium rounded-full transition duration-300 hover:bg-red-700 shadow-md transform hover:scale-[1.02]">
-                        Add to Meal
-                    </button>
-                    
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => setShowMealModal(true)}
+                            className="px-5 py-2 bg-blue-600 text-white font-medium rounded-full transition duration-300 hover:bg-red-700 shadow-md transform hover:scale-[1.02]">
+                            Add to Meal
+                        </button>
+                        {isSaved ? (
+                            <button onClick={handleUnsaveRecipe}
+                            className="bg-red-600 text-white px-5 py-2 font-medium rounded-full transition duration-300 hover:bg-red-700 shadow-md transform hover:scale-[1.02]">
+                                Unsave Recipe
+                            </button>
+                        ) : (
+                            <button onClick={handleSaveRecipe}
+                            className="bg-green-600 text-white px-5 py-2 font-medium rounded-full transition duration-300 hover:bg-green-700 shadow-md transform hover:scale-[1.02]">
+                                Save Recipe
+                            </button>
+                        )}
+                    </div>           
                     <div className="flex items-start justify-start gap-10 mt-6 border-t border-b py-4">
                         <div className="flex flex-col items-center">
                             <FaUtensils className="text-3xl text-orange-500 mb-2" />
