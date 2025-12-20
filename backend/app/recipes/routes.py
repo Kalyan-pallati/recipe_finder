@@ -4,11 +4,12 @@ from typing import Optional
 import os
 import httpx
 from dotenv import load_dotenv
+from bson import ObjectId
 
 from app.database import db
 from app.auth.utils import get_current_user
 from pydantic import BaseModel, Field
-# from bson import ObjectId
+from bson import ObjectId
 
 load_dotenv()
 
@@ -17,10 +18,6 @@ router = APIRouter()
 API_KEY = os.getenv("SPOONACULAR_API_KEY") or os.getenv("SPOONACULAR_KEY")
 BASE_URL = "https://api.spoonacular.com"
 
-# -----------------------------
-# MODELS
-# -----------------------------
-
 class SaveRecipeIn(BaseModel):
     recipe_id: str
     title: str
@@ -28,11 +25,6 @@ class SaveRecipeIn(BaseModel):
     readyInMinutes: Optional[int] = None
     calories: Optional[float] = None
     source_type: str = Field(..., pattern="^(spoonacular|community)$")
-
-
-# -----------------------------
-# PUBLIC ROUTES
-# -----------------------------
 
 @router.get("/search")
 async def search_recipes(
@@ -121,46 +113,76 @@ async def search_recipes(
     }
 
 
-# -----------------------------
-# USER SAVED RECIPES ROUTES
-# -----------------------------
-
 @router.get("/saved")
 async def get_saved_recipes(
     page: int = 1,
     per_page: int = 12,
     user: dict = Depends(get_current_user)
-    ):
+):
     user_id = str(user["_id"])
     collection = db.saved_recipes
 
-    total = collection.count_documents({"user_id": user_id})
-    
     skip = (page - 1) * per_page
+    total = collection.count_documents({"user_id": user_id})
 
-    saved_items = list(db.saved_recipes.find(
-        {"user_id": user_id},
-        {"_id": 0}
-        )
+    saved_items = list(
+        collection.find({"user_id": user_id}, {"_id": 0})
+        .sort("timestamp", -1)
         .skip(skip)
         .limit(per_page)
+    )
+
+    community_recipe_ids = [
+        ObjectId(item["recipe_id"])
+        for item in saved_items
+        if item.get("source_type") == "community"
+    ]
+
+    print("Community recipe IDs:", community_recipe_ids)
+    community_map = {}
+    if community_recipe_ids:
+        cursor = db.my_recipes.find(
+            {"_id": {"$in": community_recipe_ids}}
         )
+        for r in cursor:
+            rid = str(r["_id"])
+            community_map[rid] = {
+                "recipe_id": rid,
+                "title": r.get("title"),
+                "image": r.get("image"),
+                "calories": r.get("calories"),
+                "readyInMinutes": r.get("readyInMinutes"),
+            }
+    print(community_map);
+
+    final_results = []
+    for item in saved_items:
+        if item.get("source_type") == "spoonacular":
+            final_results.append(item)
+        elif item.get("source_type") == "community":
+            fresh = community_map.get(item["recipe_id"])
+            if fresh:
+                final_results.append({**item, **fresh})
+
     return {
         "page": page,
         "per_page": per_page,
         "total_results": total,
-        "results": saved_items
+        "results": final_results,
     }
 
+
 @router.get("/saved_recipes")
-async def saved_recipes(user: dict = Depends(get_current_user)):
+async def saved_recipes(
+    source_type: str = Query(..., pattern="^(spoonacular|community)$"),
+    user: dict = Depends(get_current_user)):
     user_id = str(user["_id"])
     collection = db.saved_recipes
 
     saved_ids_cursor = collection.find(
-        {"user_id": user_id}, 
+        {"user_id": user_id, 
+        "source_type": source_type},
         {"_id": 0, "recipe_id": 1})
-
     saved_ids = [item["recipe_id"] for item in saved_ids_cursor]
 
     return {"saved_ids": saved_ids}
@@ -174,7 +196,7 @@ async def is_recipe_saved(
     user_id = str(user["_id"])
     exists = db.saved_recipes.find_one({
         "user_id": user_id,
-        "recipe_id": recipe_id
+        "recipe_id": recipe_id,
     })
     return {"saved": bool(exists)}
 
@@ -190,11 +212,17 @@ async def save_recipe(
     if saved_collection.find_one({"user_id": user_id, "recipe_id": payload.recipe_id,"source_type":payload.source_type}):
         return {"message": "Recipe already saved"}
 
-    saved_collection.insert_one({
-        "user_id": user_id,
-        "timestamp": int(time.time()),
-        **payload.model_dump()
-    })
+    saved_data = {
+        "user_id": str(user["_id"]),
+        "recipe_id": str(payload.recipe_id),
+        "source_type": payload.source_type,
+        "timestamp": int(time.time())
+    }
+
+    if payload.source_type == "spoonacular":
+        saved_data.update(payload.model_dump(exclude={"recipe_id","source_type"}))
+
+    saved_collection.insert_one(saved_data)
 
     return {"message": "Recipe saved successfully"}
 
@@ -219,11 +247,6 @@ async def unsave_recipe(
 
     return {"message": "Recipe removed from saved"}
 
-
-# -----------------------------
-# PUBLIC RECIPE DETAILS ROUTE
-# MUST ALWAYS BE LAST
-# -----------------------------
 
 @router.get("/{recipe_id}")
 async def get_recipe_details(recipe_id: str):

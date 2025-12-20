@@ -115,7 +115,6 @@ export default function Saved() {
                   >
                     View
                   </button>
-
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

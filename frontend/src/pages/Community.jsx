@@ -19,7 +19,13 @@ export default function CommunityRecipes() {
         async function loadSaved() {
             const token = localStorage.getItem("token");
             if (!token) return;
-            const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes`, { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes?source_type=community`, 
+              { 
+                headers: { 
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                } 
+              });
             const data = await res.json()
             console.log(data.saved_ids, typeof data.saved_ids[0]);
             if (res.ok) {

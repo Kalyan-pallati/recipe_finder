@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { searchRecipes } from "../api/recipeApi";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, data } from "react-router-dom";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function Search() {
@@ -38,22 +38,27 @@ export default function Search() {
             const token = localStorage.getItem("token");
             if (!token) return;
 
-            const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes`, { headers: { Authorization: `Bearer ${token}` } });
+            const res = await fetchWithAuth(`${API_URL}/api/recipes/saved_recipes?source_type=spoonacular`, {
+
+                headers: { Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+                });
             
             const data = await res.json()
             if (res.ok) {
-                setSavedIds(data.saved_ids.map(id => Number(id)));
+                setSavedIds(data.saved_ids.map(id => String(id)));
             }
         }
-
         loadSaved();
+        console.log(savedIds);
     }, []);
 
     function buildFilters() {
         return {
             cuisine: cuisine || undefined,
             diet: diet || undefined,
-            intolerances: intolerances.length ? intolerances : undefined,
+            intolerances: intolerances.length ? intolerances.join(",") : undefined,
             maxReadyTime: maxReadyTime || undefined,
             minCalories: minCalories || undefined,
             maxCalories: maxCalories || undefined,
@@ -116,7 +121,12 @@ export default function Search() {
     async function handleSave(e, recipe) {
         e.stopPropagation();
         const token = localStorage.getItem("token");
-
+        
+        // console.log(recipe.id);
+        // console.log(recipe.title);
+        // console.log(recipe.image);
+        // console.log(recipe.readyInMinutes);
+        // console.log(recipe.calories);
         const res = await fetchWithAuth(`${API_URL}/api/recipes/save`, {
             method: "POST",
             headers: {
@@ -133,7 +143,7 @@ export default function Search() {
             }),
         });
 
-        if (res.ok) setSavedIds((prev) => [...prev, recipe.id]);
+        if (res.ok) setSavedIds((prev) => [...prev, String(recipe.id)]);
     }
 
     async function handleUnsave(e, recipeId) {
@@ -297,7 +307,7 @@ export default function Search() {
                                                     View
                                                 </button>
 
-                                                {savedIds.includes(r.id) ? (
+                                                {savedIds.includes(String(r.id)) ? (
                                                     <button
                                                         onClick={(e) => handleUnsave(e, r.id)}
                                                         className="text-sm bg-red-500 text-white px-3 py-1 rounded transition group-hover:bg-white group-hover:text-red-600"
