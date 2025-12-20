@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { FaUtensils, FaClock, FaFire } from "react-icons/fa";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 import { useNavigate } from "react-router-dom";
+import { AddMealModal } from "../components/AddMealModal";
 
 export default function Recipe() {
     const token = localStorage.getItem("token");
@@ -16,6 +17,30 @@ export default function Recipe() {
     const navigate = useNavigate();
 
     const [isSaved, setIsSaved] = useState(false);
+    const [showMealModal, setShowMealModal]  = useState(false);
+
+    async function handleAddMeal(payload) {
+        try{
+            const res = await fetchWithAuth(`${API_URL}/api/meal`,{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+
+            if(!res.ok){
+                alert(data.detail || "Failed to add meal");
+                return;
+            }
+            setShowMealModal(false);
+        } catch(err){
+            console.error(err);
+            alert("Error adding meal");
+        }
+    }
 
     async function handleSaveRecipe() {
         const token = localStorage.getItem("token");
@@ -157,6 +182,12 @@ export default function Recipe() {
                             </button>
                         )}
                     </div>
+                    <div className="mb-8 pt-2">
+                        <button onClick={() => setShowMealModal(true)}
+                        className="bg-blue-600 text-white px-5 py-2 font-medium rounded-full transition duration-300 hover:bg-green-700 shadow-md transform hover:scale-[1.02]">
+                            Add to Meal
+                        </button>
+                    </div>
                     <div className="flex items-start justify-start gap-10 mt-6 border-t border-b py-4">
 
                         <div className="flex flex-col items-center">
@@ -245,6 +276,15 @@ export default function Recipe() {
                     ))}
                 </div>
             </div>
+            {showMealModal && (
+                <AddMealModal
+                open={showMealModal}
+                setOpen={setShowMealModal}
+                recipe={recipe}
+                sourceType={sourceType}
+                onSubmit={handleAddMeal}
+        />
+        )}
         </div>
     );
 }
