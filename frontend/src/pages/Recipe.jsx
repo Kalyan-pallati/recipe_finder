@@ -84,8 +84,6 @@ export default function Recipe() {
     }
 
     async function handleUnsaveRecipe() {
- 
-        
         const res = await fetchWithAuth(
             `${API_URL}/api/recipes/unsave/${String(recipe.id)}?source_type=${sourceType}`, 
             {

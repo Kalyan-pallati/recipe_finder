@@ -27,7 +27,6 @@ export default function CommunityRecipes() {
                 } 
               });
             const data = await res.json()
-            console.log(data.saved_ids, typeof data.saved_ids[0]);
             if (res.ok) {
                 setSavedIds(data.saved_ids.map(id => String(id)));
             }
@@ -146,7 +145,7 @@ export default function CommunityRecipes() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/my-recipes/${r.id}`);
+                          navigate(`/my-recipes/${r.recipe_id}`);
                         }}
                         className="
                           text-sm px-3 py-1 rounded transition

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaUtensils, FaClock, FaFire } from "react-icons/fa";
 import EditRecipeModal from "../components/EditRecipeModal";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
+import { AddMealModal } from "../components/AddMealModal";
 
 export default function MyRecipePage() {
     const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,9 +13,33 @@ export default function MyRecipePage() {
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [showMealModal, setShowMealModal] = useState(false);
     const myId = localStorage.getItem("user_id");
 
     const [showEdit, setShowEdit] = useState(false);
+
+    async function handleAddMeal(payload) {
+        const token = localStorage.getItem("token");
+        try{
+            const res = await fetchWithAuth(`${API_URL}/api/meal`,{
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if(!res.ok){
+                alert(data.detail || "Failed to Add Recipe");
+                return;
+            }
+            setShowMealModal(false);
+        } catch(err){
+            console.log(err);
+            alert("Error Adding meal")
+        }
+    }
 
     async function fetchRecipe() {
         try {
@@ -24,6 +49,7 @@ export default function MyRecipePage() {
             if (!res.ok) throw new Error("Recipe Not Found");
 
             const data = await res.json();
+            console.log(data);
             setRecipe(data);
         } catch (err) {
             console.error(err);
@@ -39,7 +65,6 @@ export default function MyRecipePage() {
 
     async function handleDelete() {
         if (!confirm("Are you sure you want to delete this recipe?")) return;
-
         const res = await fetchWithAuth(
             `${API_URL}/api/my-recipes/${id}`,
             { method: "DELETE" }
@@ -112,6 +137,10 @@ export default function MyRecipePage() {
                             </button>
                         </div>
                     )}
+                    <button onClick={() => setShowMealModal(true)}
+                    className="px-5 py-2 bg-blue-600 text-white font-medium rounded-full transition duration-300 hover:bg-red-700 shadow-md transform hover:scale-[1.02]">
+                        Add to Meal
+                    </button>
                     
                     <div className="flex items-start justify-start gap-10 mt-6 border-t border-b py-4">
                         <div className="flex flex-col items-center">
@@ -192,6 +221,16 @@ export default function MyRecipePage() {
                     setOpen={setShowEdit}
                     initialData={recipe}
                     onSubmit={handleEditSubmit}
+                />
+            )}
+
+            {showMealModal && (
+                <AddMealModal 
+                open={showMealModal}
+                setOpen={setShowMealModal}
+                recipe={recipe}
+                sourceType="community"
+                onSubmit={handleAddMeal}
                 />
             )}
         </div>

@@ -8,7 +8,7 @@ export function AddMealModal({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    function handleSubmit(e){
+    async function handleSubmit(e){
         e.preventDefault();
         setError(null);
 
@@ -17,7 +17,7 @@ export function AddMealModal({
             return;
         }
         const payload = {
-            source_id: String(recipe.id),
+            source_id: String(recipe.id || recipe.recipe_id),
             source_type: sourceType,
             date,
             meal_type: mealType,
@@ -26,18 +26,18 @@ export function AddMealModal({
         }
 
         setLoading(true);
-        onSubmit(payload);
+        await onSubmit(payload);
         setLoading(false);
     }
     
-    if(!open) return;
+    if(!open) return null;
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 ">
             <div className="bg-white w-[420px] rounded-xl shadow-2xl p-6 relative">
                 <button
                 className="absolute top-3 right-4 text-2xl text-gray-400 hover:text-gray-700"
-                onSubmit={() => setOpen(false)}>
+                onClick={() => setOpen(false)}>
                     &times;
                 </button>
                 <h2 className="text-2xl font-bold mb-4">Add to Meal Plan</h2>
