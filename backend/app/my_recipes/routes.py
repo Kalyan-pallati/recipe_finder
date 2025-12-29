@@ -127,8 +127,6 @@ async def get_one_recipe(recipe_id: str, user: dict = Depends(get_current_user))
     if not doc:
         raise HTTPException(404, "Recipe not Found")
 
-    # Community recipes allow viewing by anyone who is logged in
-    # If you only want owners to view their recipes, uncomment this:
     # if str(doc["user_id"]) != str(user["_id"]):
     #     raise HTTPException(403, "Not Authorized")
 

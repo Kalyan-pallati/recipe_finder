@@ -38,8 +38,6 @@ def create_access_token(data: dict):
 def decode_token(token: str) -> dict:
     return jwt.decode(token, SECRET, algorithms=[ALGORITHM])
 
-def generate_otp() -> str:
-    return "".join(random.choices(string.digits, k=6))
 
 def get_current_user(credentials = Depends(auth_scheme)):
     token = credentials.credentials
