@@ -168,7 +168,7 @@ export default function Search() {
 
                     <label className="block text-sm font-medium mb-1">Search</label>
                     <div className="flex gap-2 mb-4">
-                        <input className="flex-1 px-3 py-2 border rounded" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="e.g. chicken biryani" />
+                        <input className="flex-1 px-3 py-2 border rounded" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="e.g. chicken" />
                         <button onClick={() => doSearch(1)} className="px-3 py-2 bg-orange-600 text-white rounded">Go</button>
                     </div>
 
