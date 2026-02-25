@@ -77,11 +77,17 @@ Frontend URL : http://localhost:5173
 Go to this URL to find your website..!
 ---
 **Screenshots**
+1. Home Page
 <img width="1893" height="818" alt="Screenshot 2026-02-25 125952" src="https://github.com/user-attachments/assets/f3fc3fe1-8007-4e8a-a330-3f259e09eaf3" />
+2. Search Recipes
 <img width="1891" height="819" alt="Screenshot 2026-02-25 130023" src="https://github.com/user-attachments/assets/dc2cb8ab-463d-4037-b754-cce0caf48235" />
+3. View Recipe 
 <img width="1891" height="820" alt="Screenshot 2026-02-25 130100" src="https://github.com/user-attachments/assets/b82877c5-667a-47ad-9d9c-e8f20a43fa0f" />
+4. View Recipe(2)
 <img width="1889" height="820" alt="Screenshot 2026-02-25 130110" src="https://github.com/user-attachments/assets/408bd94b-791c-4ce1-859f-10e05e412318" />
+5. Add Custom Recipe
 <img width="1890" height="824" alt="Screenshot 2026-02-25 130126" src="https://github.com/user-attachments/assets/1d8467f7-048c-440f-b466-ccd6fe4b5f68" />
+6. Meal Planner
 <img width="1894" height="818" alt="Screenshot 2026-02-25 130200" src="https://github.com/user-attachments/assets/8c3f26a3-ff48-460c-8189-ffc42b1a3862" />
 
 
@@ -93,6 +99,7 @@ Go to this URL to find your website..!
 4. ~~Image Uploads~~
 5. User Dashboard
 6. Adding Like and Comment feature to Community Recipes
+
 
 
 
