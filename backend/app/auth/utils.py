@@ -7,9 +7,9 @@ from fastapi.security import HTTPBearer
 from app.database import db
 from bson import ObjectId
 from email.message import EmailMessage
-import smtplib
-import random
-import string
+# import smtplib
+# import random
+# import string
 
 SECRET = os.getenv("SECRET_KEY", "default_secret")
 ALGORITHM = "HS256"
